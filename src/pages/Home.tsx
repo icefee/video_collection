@@ -1,0 +1,115 @@
+import React, { useState, useEffect } from 'react';
+import { ScrollView, Pressable, View, ActivityIndicator, Text, Image } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+
+async function getVideos() {
+    const url = 'https://code-space.netlify.app/flutter/videos.json'
+    const response = await fetch(url)
+    const json: { videos: Section[] } = await response.json()
+    // const json = html.match(
+    //     new RegExp('(?<=<script id="__NEXT_DATA__" type="application/json">).+?(?=</script>)', 'g')
+    // )
+    return json.videos;
+}
+
+function Home() {
+
+    const [loading, setLoading] = useState(false)
+    const [videoList, setVideoList] = useState<Section[]>([])
+
+    const getVideoList = async () => {
+        setLoading(true)
+        const videos = await getVideos()
+        setVideoList(videos)
+        setLoading(false)
+    }
+
+    useEffect(() => {
+        getVideoList()
+    }, [])
+
+    return loading ? (
+        <View style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+        }}>
+            <ActivityIndicator size="large" color="purple" />
+        </View>
+    ) : (
+        <ScrollView style={{ flex: 1 }} contentInsetAdjustmentBehavior="automatic">
+            {
+                videoList.map(
+                    (section, index) => (
+                        <VideoSection key={index} section={section} />
+                    )
+                )
+            }
+        </ScrollView>
+    )
+}
+
+function VideoSection({ section }: { section: Section }) {
+    return (
+        <View style={{
+            margin: 5,
+            backgroundColor: '#fff',
+            borderRadius: 5
+        }}>
+            <View style={{
+                padding: 10
+            }}>
+                <Text style={{
+                    fontSize: 18,
+                    fontWeight: 'bold',
+                    color: 'purple'
+                }}>{section.section}</Text>
+            </View>
+            <ScrollView style={{
+                paddingHorizontal: 10
+            }} contentInsetAdjustmentBehavior="automatic">
+                {
+                    section.series.map(
+                        (video, index) => (
+                            <VideoCollection key={index} video={video} />
+                        )
+                    )
+                }
+            </ScrollView>
+        </View>
+    )
+}
+
+function VideoCollection({ video }: { video: Video }) {
+    const navigation = useNavigation();
+    return (
+        <Pressable onPress={() => navigation.navigate({
+            name: 'video' as never,
+            params: video as never
+        })}>
+            <View style={{
+                paddingVertical: 10,
+                paddingHorizontal: 5,
+                borderTopWidth: 1,
+                borderTopColor: '#eee',
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+            }}>
+                <View>
+                    <Text style={{ fontWeight: 'bold', fontSize: 16 }}>{video.title}</Text>
+                    {'episodes' in video && <Text style={{ color: '#999' }}>{video.episodes}集</Text>}
+                </View>
+                <View>
+                    <Image style={{
+                        resizeMode: 'center',
+                        width: 24,
+                        height: 24
+                    }} source={require('../assets/arrow-right.png')} />
+                </View>
+            </View>
+        </Pressable>
+    )
+}
+
+export default Home;
