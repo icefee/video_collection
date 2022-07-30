@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { View, ScrollView, TouchableHighlight, Text, ActivityIndicator } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import VideoPlayer from '../components/VideoPlayer';
+import { useTheme } from '../hook/theme';
 
 export const getM3u8Uri: (url_template: string, m3u8: M3u8Video) => string = (url_template, m3u8) => {
     if (typeof m3u8 === 'string') {
@@ -20,6 +21,7 @@ export const getM3u8Uri: (url_template: string, m3u8: M3u8Video) => string = (ur
 function Video() {
     const route = useRoute()
     const navigation = useNavigation()
+    const { paperColor, textColor } = useTheme()
 
     const videoInfo = useMemo<Video>(
         () => route.params as Video,
@@ -50,11 +52,11 @@ function Video() {
     return (
         <View style={{ flex: 1 }}>
             {playingUrl === '' ? <ActivityIndicator /> : <VideoPlayer url={playingUrl} />}
-            <View style={{ flex: 1 }}>
+            <View style={{ flex: 1, backgroundColor: paperColor }}>
                 <View style={{
                     padding: 10
                 }}>
-                    <Text>选集</Text>
+                    <Text style={{ color: textColor }}>选集</Text>
                 </View>
                 {
                     isEpisode ? (
@@ -103,13 +105,15 @@ function Video() {
 
 function EpisodeSelection({ active, children, onPress }: { active: boolean, children: React.ReactNode, onPress: () => void }) {
 
+    const { textColor, backgroundColor } = useTheme()
+
     const viewStyle = {
-        borderColor: active ? 'purple' : '#999',
+        borderColor: textColor,
         backgroundColor: active ? 'purple' : 'transparent'
     }
 
     const textStyle = {
-        color: active ? '#fff' : '#000'
+        color: textColor
     }
 
     return (

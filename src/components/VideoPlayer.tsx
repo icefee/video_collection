@@ -24,7 +24,7 @@ function VideoPlayer({ url }: VideoPlayerProps) {
         }}>
             <Video
                 source={{ uri: url }}
-                controls
+                controls={!loading}
                 onReadyForDisplay={() => setLoading(false)}
                 style={{
                     width: '100%',

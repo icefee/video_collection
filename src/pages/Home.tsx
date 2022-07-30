@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ScrollView, Pressable, View, ActivityIndicator, Text, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useTheme } from '../hook/theme';
 
 async function getVideos() {
     const url = 'https://code-space.netlify.app/flutter/videos.json'
@@ -16,6 +17,7 @@ function Home() {
 
     const [loading, setLoading] = useState(false)
     const [videoList, setVideoList] = useState<Section[]>([])
+    const { backgroundColor } = useTheme()
 
     const getVideoList = async () => {
         setLoading(true)
@@ -33,11 +35,12 @@ function Home() {
             flex: 1,
             justifyContent: 'center',
             alignItems: 'center',
+            backgroundColor,
         }}>
             <ActivityIndicator size="large" color="purple" />
         </View>
     ) : (
-        <ScrollView style={{ flex: 1 }} contentInsetAdjustmentBehavior="automatic">
+            <ScrollView style={{ flex: 1, backgroundColor }} contentInsetAdjustmentBehavior="automatic">
             {
                 videoList.map(
                     (section, index) => (
@@ -50,10 +53,11 @@ function Home() {
 }
 
 function VideoSection({ section }: { section: Section }) {
+    const { paperColor } = useTheme();
     return (
         <View style={{
             margin: 5,
-            backgroundColor: '#fff',
+            backgroundColor: paperColor,
             borderRadius: 5
         }}>
             <View style={{
@@ -82,6 +86,7 @@ function VideoSection({ section }: { section: Section }) {
 
 function VideoCollection({ video }: { video: Video }) {
     const navigation = useNavigation();
+    const { textColor, borderColor } = useTheme();
     return (
         <Pressable onPress={() => navigation.navigate({
             name: 'video' as never,
@@ -91,13 +96,13 @@ function VideoCollection({ video }: { video: Video }) {
                 paddingVertical: 10,
                 paddingHorizontal: 5,
                 borderTopWidth: 1,
-                borderTopColor: '#eee',
+                borderTopColor: borderColor,
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 alignItems: 'center',
             }}>
                 <View>
-                    <Text style={{ fontWeight: 'bold', fontSize: 16 }}>{video.title}</Text>
+                    <Text style={{ fontWeight: 'bold', fontSize: 16, color: textColor }}>{video.title}</Text>
                     {'episodes' in video && <Text style={{ color: '#999' }}>{video.episodes}集</Text>}
                 </View>
                 <View>

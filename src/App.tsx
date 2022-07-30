@@ -2,14 +2,11 @@ import React from 'react';
 import {
   SafeAreaView,
   StatusBar,
-  useColorScheme,
-  View
+  View,
 } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import {
-  Colors
-} from 'react-native/Libraries/NewAppScreen';
+import { useTheme } from './hook/theme';
 
 import Home from './pages/Home';
 import Video from './pages/Video';
@@ -17,15 +14,24 @@ import Video from './pages/Video';
 const Stack = createNativeStackNavigator();
 
 const App = () => {
-  const isDarkMode = useColorScheme() === 'dark';
+  const { statusBarColor, statusBarStyle, headerColor, textColor } = useTheme();
 
   const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+    backgroundColor: statusBarColor,
   };
+
+  const screenHeaderStyle = {
+    headerStyle: {
+      backgroundColor: headerColor
+    },
+    headerTitleStyle: {
+      color: textColor
+    }
+  }
 
   return (
     <SafeAreaView style={backgroundStyle}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+      <StatusBar barStyle={statusBarStyle} />
       <View style={{
         height: '100%'
       }}>
@@ -33,10 +39,12 @@ const App = () => {
           <Stack.Navigator initialRouteName="home">
             <Stack.Screen name="home" component={Home} options={{
               title: '视频文件夹',
-              navigationBarHidden: true
+              navigationBarHidden: true,
+              ...screenHeaderStyle
             }} />
             <Stack.Screen name="video" component={Video} options={{
-              navigationBarHidden: true
+              navigationBarHidden: true,
+              ...screenHeaderStyle,
             }} />
           </Stack.Navigator>
         </NavigationContainer>
