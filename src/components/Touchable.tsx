@@ -1,11 +1,26 @@
-import React from 'react';
-import { Pressable, type PressableProps } from 'react-native';
+import React, { useState } from 'react';
+import { Pressable, type PressableProps, Dimensions } from 'react-native';
 
-interface TouchableProps extends PressableProps {}
+interface TouchableProps extends PressableProps {
+    onTouchUpdate?: (rate: number) => void;
+}
 
-function Touchable({ children, onPress }: TouchableProps) {
+function Touchable({ children, onTouchStart, onTouchUpdate, ...props }: TouchableProps) {
+    const [touchOffset, setTouchOffset] = useState(0)
     return (
-        <Pressable onPress={onPress}>{children}</Pressable>
+        <Pressable onTouchStart={
+            (event) => {
+                onTouchStart?.(event);
+                setTouchOffset(event.nativeEvent.locationX)
+            }
+        } onTouchMove={
+            (event) => {
+                const width = Dimensions.get('window').width;
+                const offset = event.nativeEvent.locationX - touchOffset;
+                onTouchUpdate?.(offset / width);
+                setTouchOffset(event.nativeEvent.locationX)
+            }
+        } { ...props }>{children}</Pressable>
     )
 }
 

@@ -38,6 +38,13 @@ function VideoPlayer({ url }: VideoPlayerProps) {
         setLoading(true);
     }, [url])
 
+    const clearControlDismissTimeout = () => {
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current)
+            timeoutRef.current = undefined;
+        }
+    }
+
     return (
         <View style={{
             backgroundColor: '#000',
@@ -45,8 +52,12 @@ function VideoPlayer({ url }: VideoPlayerProps) {
             alignItems: 'center',
             position: 'relative',
         }}>
-            <Touchable onPress={
+            <Touchable onTouchStart={
                 () => setControlShow(true)
+            } onTouchUpdate={
+                rate => {
+                    //
+                }
             }>
                 <Video
                     source={{ uri: url }}
@@ -62,9 +73,8 @@ function VideoPlayer({ url }: VideoPlayerProps) {
                             if (isPlaying) {
                                 timeoutRef.current = setTimeout(() => setControlShow(false), 3000)
                             }
-                            else if (timeoutRef.current) {
-                                clearTimeout(timeoutRef.current)
-                                timeoutRef.current = undefined;
+                            else {
+                                clearControlDismissTimeout()
                             }
                         }
                     }
@@ -92,7 +102,10 @@ function VideoPlayer({ url }: VideoPlayerProps) {
                         backgroundColor: 'rgba(0, 0, 0, 0.4)'
                     }}>
                         <TouchableWithoutFeedback onPress={
-                            () => setControlShow(false)
+                            () => {
+                                setControlShow(false)
+                                clearControlDismissTimeout()
+                            }
                         }>
                             <View style={{
                                 position: 'absolute',
