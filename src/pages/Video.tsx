@@ -63,31 +63,25 @@ function Video() {
                         <ScrollView contentInsetAdjustmentBehavior="automatic">
                             <View style={{
                                 width: '100%',
-                                flexDirection: 'column',
-                                justifyContent: 'center',
+                                flexDirection: 'row',
                                 alignItems: 'center',
-                                alignContent: 'center',
+                                flexWrap: 'wrap'
                             }}>
-                                <View style={{
-                                    flexDirection: 'row',
-                                    flexWrap: 'wrap'
-                                }}>
-                                    {
-                                        (videoInfo as Episode).m3u8_list.map(
-                                            (m3u8, index) => (
-                                                <EpisodeSelection
-                                                    key={index}
-                                                    active={getM3u8Uri((videoInfo as Episode).url_template!, m3u8) === playingUrl}
-                                                    onPress={
-                                                        () => setPlayingUrl(
-                                                            getM3u8Uri((videoInfo as Episode).url_template!, m3u8)
-                                                        )
-                                                    }
-                                                >第{index + 1}集</EpisodeSelection>
-                                            )
+                                {
+                                    (videoInfo as Episode).m3u8_list.map(
+                                        (m3u8, index) => (
+                                            <EpisodeSelection
+                                                key={index}
+                                                active={getM3u8Uri((videoInfo as Episode).url_template!, m3u8) === playingUrl}
+                                                onPress={
+                                                    () => setPlayingUrl(
+                                                        getM3u8Uri((videoInfo as Episode).url_template!, m3u8)
+                                                    )
+                                                }
+                                            >第{index + 1}集</EpisodeSelection>
                                         )
-                                    }
-                                </View>
+                                    )
+                                }
                             </View>
                         </ScrollView>
                     ) : (
