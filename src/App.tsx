@@ -53,14 +53,11 @@ function Navigation() {
   }
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="home">
+      <Stack.Navigator screenOptions={commonOptions} initialRouteName="home">
         <Stack.Screen name="home" component={Home} options={{ // navigationBar
-          title: '视频文件夹',
-          ...commonOptions
+          title: '视频文件夹'
         }} />
-        <Stack.Screen name="video" component={Video} options={{
-          ...commonOptions,
-        }} />
+        <Stack.Screen name="video" component={Video} />
       </Stack.Navigator>
     </NavigationContainer>
   )

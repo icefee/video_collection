@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { View, ScrollView, TouchableHighlight, Text, ActivityIndicator, Dimensions, BackHandler } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useHeaderHeight } from '@react-navigation/elements';
 import VideoPlayer from '../components/VideoPlayer';
 import { useTheme } from '../hook/theme';
 
@@ -25,6 +26,7 @@ function Video() {
     const { paperColor, textColor } = useTheme()
     const [isFullscreen, setIsFullscreen] = useState(false)
     const insets = useSafeAreaInsets();
+    const headerHeight = useHeaderHeight();
 
     const videoInfo = useMemo<Video>(
         () => route.params as Video,
@@ -68,12 +70,26 @@ function Video() {
         }
     }, [isFullscreen])
 
+    /*
+    useEffect(() => {
+        navigation.addListener('beforeRemove', (e) => {
+            if (!isFullscreen) {
+                return;
+            }
+            else {
+                e.preventDefault()
+                setIsFullscreen(false)
+            }
+        })
+    }, [isFullscreen, navigation])
+    */
+
     return (
         <View style={{ flex: 1 }}>
             {playingUrl === '' ? <ActivityIndicator /> : (
                 <VideoPlayer
                     width={Dimensions.get('window').width}
-                    height={isFullscreen ? (Dimensions.get('window').height - insets.bottom) : Dimensions.get('window').height * .4}
+                    height={isFullscreen ? (Dimensions.get('window').height - insets.bottom - headerHeight) : Dimensions.get('window').height * .4}
                     url={playingUrl}
                     onRequestFullscreen={() => setIsFullscreen(!isFullscreen)}
                 />
