@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, TouchableWithoutFeedback, Image, ActivityIndicator, Dimensions } from 'react-native';
-import Video, { type ProcessParams, type VideoInfo } from 'react-native-video';
+import { View, Text, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
+import Video, { type ProcessParams, type VideoInfo, type PlayerRef } from 'react-native-video';
 import Touchable from '../components/Touchable';
 import { FadeView } from './Animated';
 
@@ -14,18 +14,19 @@ function timeFormatter(sf: number): string {
 
 interface VideoPlayerProps {
     url: string;
+    width: number;
+    height: number;
+    onRequestFullscreen?: () => void;
 }
 
-function VideoPlayer({ url }: VideoPlayerProps) {
+function VideoPlayer({ url, width, height, onRequestFullscreen }: VideoPlayerProps) {
 
+    const playerRef = useRef<PlayerRef>()
     const [loading, setLoading] = useState(false);
     const timeoutRef = useRef<number>();
-
     const [paused, setPaused] = useState(false)
     const [seeking, setSeeking] = useState(false)
-
     const [controlShow, setControlShow] = useState(true)
-
     const [totalDuration, setTotalDuration] = useState(0)
 
     const [process, setProcess] = useState<ProcessParams>({
@@ -53,20 +54,52 @@ function VideoPlayer({ url }: VideoPlayerProps) {
             position: 'relative',
         }}>
             <Touchable onTouchStart={
-                () => setControlShow(true)
+                () => {
+                    if (controlShow) {
+                        setControlShow(false);
+                        clearControlDismissTimeout();
+                    }
+                    else {
+                        setControlShow(true)
+                    }
+                }
             } onTouchUpdate={
                 rate => {
-                    //
+                    setControlShow(true);
+                    setSeeking(true);
+                    const currentTime = Math.min(
+                        totalDuration,
+                        Math.max(
+                            0,
+                            process.currentTime + rate * totalDuration
+                        )
+                    );
+                    playerRef.current?.seek(currentTime)
+                    setProcess(params => ({
+                        ...params,
+                        currentTime
+                    }))
+                }
+            } onDoubleTap={
+                () => {
+                    setPaused(!paused)
                 }
             }>
                 <Video
                     source={{ uri: url }}
                     paused={paused}
                     onReadyForDisplay={() => setLoading(false)}
+                    ref={
+                        /* @ts-ignore */
+                        ref => playerRef.current = ref
+                    }
                     onLoad={
                         ({ duration }: VideoInfo) => {
                             setTotalDuration(duration)
                         }
+                    }
+                    onSeek={
+                        () => { }
                     }
                     onPlaybackStateChanged={
                         ({ isPlaying }) => {
@@ -80,55 +113,15 @@ function VideoPlayer({ url }: VideoPlayerProps) {
                     }
                     onProgress={
                         (params: ProcessParams) => {
-                            setProcess(params)
+                            if (!seeking) {
+                                setProcess(params)
+                            }
                         }
                     }
-                    style={{
-                        width: Dimensions.get('window').width,
-                        height: Dimensions.get('window').height * .4
-                    }}
+                    style={{ width, height }}
                 />
             </Touchable>
-            {
-                controlShow && !loading && (
-                    <View style={{
-                        position: 'absolute',
-                        left: 0,
-                        top: 0,
-                        right: 0,
-                        bottom: 0,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        backgroundColor: 'rgba(0, 0, 0, 0.4)'
-                    }}>
-                        <TouchableWithoutFeedback onPress={
-                            () => {
-                                setControlShow(false)
-                                clearControlDismissTimeout()
-                            }
-                        }>
-                            <View style={{
-                                position: 'absolute',
-                                left: 0,
-                                top: 0,
-                                right: 0,
-                                bottom: 0,
-                            }} />
-                        </TouchableWithoutFeedback>
-                        <TouchableOpacity onPress={
-                            () => setPaused(!paused)
-                        }>
-                            <Image style={{
-                                width: 40,
-                                height: 40,
-                                opacity: .8,
-                                resizeMode: 'contain'
-                            }} source={paused ? require('../assets/play.png') : require('../assets/pause.png')} />
-                        </TouchableOpacity>
-                    </View>
-                )
-            }
-            <FadeView in={controlShow} duration={250} style={{
+            <FadeView in={controlShow && !loading} duration={250} style={{
                 position: 'absolute',
                 bottom: 0,
                 padding: 10,
@@ -159,9 +152,32 @@ function VideoPlayer({ url }: VideoPlayerProps) {
                 </View>
                 <View style={{
                     flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
                     marginTop: 10
                 }}>
-                    <Text style={{ color: '#fff' }}>{timeFormatter(process.currentTime) + ' / ' + timeFormatter(totalDuration)}</Text>
+                    <View style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                    }}>
+                        <TouchableOpacity onPress={
+                            () => setPaused(!paused)
+                        }>
+                            <Image style={{
+                                width: 30,
+                                height: 30,
+                                resizeMode: 'contain'
+                            }} source={paused ? require('../assets/play.png') : require('../assets/pause.png')} />
+                        </TouchableOpacity>
+                        <Text style={{ color: '#fff', marginLeft: 15 }}>{timeFormatter(process.currentTime) + ' / ' + timeFormatter(totalDuration)}</Text>
+                    </View>
+                    <TouchableOpacity onPress={onRequestFullscreen}>
+                        <Image style={{
+                            width: 25,
+                            height: 25,
+                            resizeMode: 'center'
+                        }} source={require('../assets/fullscreen.png')} />
+                    </TouchableOpacity>
                 </View>
             </FadeView>
             {

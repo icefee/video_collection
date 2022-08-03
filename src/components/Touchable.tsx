@@ -1,12 +1,31 @@
 import React, { useState } from 'react';
-import { Pressable, type PressableProps, Dimensions } from 'react-native';
+import { Pressable, type PressableProps, type GestureResponderEvent, Dimensions } from 'react-native';
 
 interface TouchableProps extends PressableProps {
     onTouchUpdate?: (rate: number) => void;
+    onDoubleTap?: () => void;
 }
 
-function Touchable({ children, onTouchStart, onTouchUpdate, ...props }: TouchableProps) {
+function Touchable({ children, onTouchStart, onTouchUpdate, onDoubleTap, onPress, ...props }: TouchableProps) {
     const [touchOffset, setTouchOffset] = useState(0)
+    const [firstTap, setFirstTap] = useState<number | null>(null)
+    const [isTouching, setIsTouching] = useState(false)
+    const releaseTouching = () => setIsTouching(false)
+    
+    const handlePress = (event: GestureResponderEvent) => {
+        console.log('press')
+        if (!firstTap) {
+            setFirstTap(+new Date())
+        }
+        else {
+            if(Date.now() - firstTap < 400) {
+                onDoubleTap?.()
+            }
+            setFirstTap(null)
+        }
+        onPress?.(event)
+    }
+
     return (
         <Pressable onTouchStart={
             (event) => {
@@ -17,10 +36,15 @@ function Touchable({ children, onTouchStart, onTouchUpdate, ...props }: Touchabl
             (event) => {
                 const width = Dimensions.get('window').width;
                 const offset = event.nativeEvent.locationX - touchOffset;
-                onTouchUpdate?.(offset / width);
+                if (Math.abs(offset) > 2) {
+                    setIsTouching(true)
+                }
+                if (isTouching) {
+                    onTouchUpdate?.(offset / width);
+                }
                 setTouchOffset(event.nativeEvent.locationX)
             }
-        } { ...props }>{children}</Pressable>
+        } onPress={handlePress} onTouchEnd={releaseTouching} onTouchCancel={releaseTouching} { ...props }>{children}</Pressable>
     )
 }
 
