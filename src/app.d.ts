@@ -2,7 +2,7 @@
 
 declare module 'react-native-video' {
     import type { ClassicComponentClass } from 'react'
-    import type { StyleProp, ViewStyle } from 'react-native';
+    import type { StyleProp, ViewStyle, ImageResizeMode } from 'react-native';
 
     export type ProcessParams = {
         currentTime: number;
@@ -23,6 +23,7 @@ declare module 'react-native-video' {
         controls?: boolean;
         paused?: boolean;
         minLoadRetryCount?: number;
+        resizeMode?: Exclude<ImageResizeMode, 'center' | 'repeat'> | 'none';
         onReadyForDisplay?: () => void;
         onLoad?: (info: VideoInfo) => void;
         onProgress?: (payload: ProcessParams) => void;
@@ -41,5 +42,30 @@ declare module 'react-native-video' {
         seek(duration: number): void;
     }
 
+    export default _default;
+}
+
+declare module 'react-native-orientation' {
+
+    export type Orientation = 'LANDSCAPE' | 'PORTRAIT' | 'PORTRAITUPSIDEDOWN' | 'UNKNOWN';
+    export type SpecificOrientation = 'LANDSCAPE-LEFT' | 'LANDSCAPE-RIGHT' | 'PORTRAIT' | 'PORTRAITUPSIDEDOWN' | 'UNKNOWN';
+
+    type OrientationListener<T> = (listener: (orientation: T) => void) => void;
+    type OrientationListenerDetail<T> = (listener: (err: Error, orientation: T) => void) => void;
+
+    const _default: {
+        getInitialOrientation: () => Orientation;
+        lockToPortrait: () => void;
+        lockToLandscape: () => void;
+        lockToLandscapeLeft: () => void;
+        lockToLandscapeRight: () => void;
+        unlockAllOrientations: () => void;
+        addOrientationListener: OrientationListener<Orientation>;
+        removeOrientationListener: OrientationListener<Orientation>;
+        addSpecificOrientationListener: OrientationListener<SpecificOrientation>;
+        removeSpecificOrientationListener: OrientationListener<SpecificOrientation>;
+        getOrientation: OrientationListenerDetail<Orientation>;
+        getSpecificOrientation: OrientationListenerDetail<SpecificOrientation>;
+    };
     export default _default;
 }

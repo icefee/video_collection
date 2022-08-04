@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, ScrollView, TouchableHighlight, Text, Dimensions, BackHandler } from 'react-native';
+import { View, ScrollView, TouchableHighlight, StatusBar, Text, BackHandler } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useHeaderHeight } from '@react-navigation/elements';
 import VideoPlayer from '../components/VideoPlayer';
 import { useTheme } from '../hook/theme';
+import Orientation from 'react-native-orientation';
+import { useWindowSize } from '../hook/screen';
 
 export const getM3u8Uri: (url_template: string, m3u8: M3u8Video) => string = (url_template, m3u8) => {
     if (typeof m3u8 === 'string') {
@@ -25,9 +25,9 @@ function Video() {
     const navigation = useNavigation()
     const { paperColor, textColor } = useTheme()
     const [isFullscreen, setIsFullscreen] = useState(false)
-    const insets = useSafeAreaInsets();
-    const headerHeight = useHeaderHeight();
     const [activeEpisode, setActiveEpisode] = useState(0)
+
+    const [width, height] = useWindowSize()
 
     const videoInfo = useMemo<Video>(
         () => route.params as Video,
@@ -37,6 +37,19 @@ function Video() {
         () => 'episodes' in videoInfo,
         [videoInfo]
     )
+
+    const [videoWidth, videoHeight] = useMemo(() => {
+        if (isFullscreen) {
+            return [
+                height,
+                width
+            ]
+        }
+        else return [
+            width,
+            height * .4
+        ]
+    }, [width, height, isFullscreen])
     // const [playingUrl, setPlayingUrl] = useState('')
 
     const playingUrl = useMemo<string>(() => {
@@ -71,7 +84,7 @@ function Video() {
                 'hardwareBackPress',
                 () => {
                     if (isFullscreen) {
-                        setIsFullscreen(false)
+                        dismissFullscreen()
                         return true;
                     }
                     return false;
@@ -80,6 +93,24 @@ function Video() {
             return () => backHandler.remove();
         }
     }, [isFullscreen])
+
+    const enterFullscreen = () => {
+        Orientation.lockToLandscapeLeft()
+        StatusBar.setHidden(true)
+        navigation.setOptions({
+            headerShown: false
+        })
+        setIsFullscreen(true)
+    }
+
+    const dismissFullscreen = () => {
+        Orientation.lockToPortrait()
+        StatusBar.setHidden(false)
+        navigation.setOptions({
+            headerShown: true
+        })
+        setIsFullscreen(false)
+    }
 
     /*
     useEffect(() => {
@@ -98,10 +129,17 @@ function Video() {
     return (
         <View style={{ flex: 1 }}>
             <VideoPlayer
-                width={Dimensions.get('window').width}
-                height={isFullscreen ? (Dimensions.get('window').height - insets.bottom - headerHeight) : Dimensions.get('window').height * .4}
+                width={videoWidth}
+                height={videoHeight}
                 url={playingUrl}
-                onRequestFullscreen={() => setIsFullscreen(!isFullscreen)}
+                onRequestFullscreen={() => {
+                    if (isFullscreen) {
+                        dismissFullscreen()
+                    }
+                    else {
+                        enterFullscreen()
+                    }
+                }}
                 onEnd={playNext}
             />
             {

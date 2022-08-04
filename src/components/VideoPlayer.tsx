@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, Image } from 'react-native';
+import { View, Text, TouchableOpacity, Image, AppState, type AppStateStatus } from 'react-native';
 import Video, { type ProcessParams, type VideoInfo, type PlayerRef } from 'react-native-video';
 import Touchable from '../components/Touchable';
 import { FadeView } from './Animated';
@@ -48,6 +48,28 @@ function VideoPlayer({ url, width, height, onRequestFullscreen, onEnd }: VideoPl
         }
     }
 
+    const appState = useRef(AppState.currentState);
+
+    const _handleAppStateChange = (state: AppStateStatus) => {
+        if (
+            appState.current.match(/inactive|background/) &&
+            state === 'active'
+        ) {
+            setPaused(false);
+        }
+        else {
+            setPaused(true);
+        }
+        appState.current = state;
+    }
+
+    useEffect(() => {
+
+        const listener = AppState.addEventListener('change', _handleAppStateChange);
+
+        return () => listener.remove();
+    }, []);
+
     return (
         <View style={{
             backgroundColor: '#000',
@@ -91,6 +113,7 @@ function VideoPlayer({ url, width, height, onRequestFullscreen, onEnd }: VideoPl
                     source={{ uri: url }}
                     paused={paused}
                     minLoadRetryCount={20}
+                    resizeMode="contain"
                     ref={
                         /* @ts-ignore */
                         ref => playerRef.current = ref

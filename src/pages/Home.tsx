@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollView, Pressable, View, ActivityIndicator, Text, Image } from 'react-native';
+import { ScrollView, Pressable, View, Text, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../hook/theme';
 import LoadingIndicator from '../components/LoadingIndicator'
+
+const shields = [
+    '韩国电影',
+    '纪录片'
+];
 
 async function getVideos() {
     const url = 'https://code-space.netlify.app/flutter/videos.json'
@@ -11,7 +16,9 @@ async function getVideos() {
     // const json = html.match(
     //     new RegExp('(?<=<script id="__NEXT_DATA__" type="application/json">).+?(?=</script>)', 'g')
     // )
-    return json.videos;
+    return json.videos.filter(
+        ({ section }) => !shields.includes(section)
+    );
 }
 
 function Home() {
