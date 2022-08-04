@@ -22,11 +22,16 @@ declare module 'react-native-video' {
         };
         controls?: boolean;
         paused?: boolean;
+        minLoadRetryCount?: number;
         onReadyForDisplay?: () => void;
         onLoad?: (info: VideoInfo) => void;
-        onProgress?: (params: ProcessParams) => void;
-        onPlaybackStateChanged?: (params: { isPlaying: boolean; }) => void;
-        onSeek?: (params: SeekParams) => void;
+        onProgress?: (payload: ProcessParams) => void;
+        onPlaybackStateChanged?: (payload: { isPlaying: boolean; }) => void;
+        onSeek?: (payload: SeekParams) => void;
+        onEnd?: () => void;
+        onBuffer?: (payload: { isBuffering: boolean; }) => void;
+        reportBandwidth?: boolean;
+        onBandwidthUpdate?: (payload: { bitrate: number; }) => void;
         style?: StyleProp<ViewStyle>
     }>;
 

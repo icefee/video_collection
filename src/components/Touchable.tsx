@@ -13,7 +13,6 @@ function Touchable({ children, onTouchStart, onTouchUpdate, onDoubleTap, onPress
     const releaseTouching = () => setIsTouching(false)
     
     const handlePress = (event: GestureResponderEvent) => {
-        console.log('press')
         if (!firstTap) {
             setFirstTap(+new Date())
         }

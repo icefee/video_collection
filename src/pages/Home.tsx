@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ScrollView, Pressable, View, ActivityIndicator, Text, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../hook/theme';
+import LoadingIndicator from '../components/LoadingIndicator'
 
 async function getVideos() {
     const url = 'https://code-space.netlify.app/flutter/videos.json'
@@ -37,7 +38,7 @@ function Home() {
             alignItems: 'center',
             backgroundColor,
         }}>
-            <ActivityIndicator size="large" color="purple" />
+            <LoadingIndicator />
         </View>
     ) : (
             <ScrollView style={{ flex: 1, backgroundColor }} contentInsetAdjustmentBehavior="automatic">

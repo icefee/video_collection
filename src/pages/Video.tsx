@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, ScrollView, TouchableHighlight, Text, ActivityIndicator, Dimensions, BackHandler } from 'react-native';
+import { View, ScrollView, TouchableHighlight, Text, Dimensions, BackHandler } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useHeaderHeight } from '@react-navigation/elements';
@@ -27,6 +27,7 @@ function Video() {
     const [isFullscreen, setIsFullscreen] = useState(false)
     const insets = useSafeAreaInsets();
     const headerHeight = useHeaderHeight();
+    const [activeEpisode, setActiveEpisode] = useState(0)
 
     const videoInfo = useMemo<Video>(
         () => route.params as Video,
@@ -36,23 +37,33 @@ function Video() {
         () => 'episodes' in videoInfo,
         [videoInfo]
     )
-    const [playingUrl, setPlayingUrl] = useState('')
+    // const [playingUrl, setPlayingUrl] = useState('')
 
-    useEffect(() => {
+    const playingUrl = useMemo<string>(() => {
         if (isEpisode) {
             const video = videoInfo as Episode;
-            setPlayingUrl(
-                getM3u8Uri(video.url_template!, video.m3u8_list[0])
-            )
+            return getM3u8Uri(video.url_template!, video.m3u8_list[activeEpisode])
         }
         else {
-            const video = videoInfo as Film;
-            setPlayingUrl(video.m3u8_url)
+            return (videoInfo as Film).m3u8_url
         }
+    }, [activeEpisode])
+
+    useEffect(() => {
         navigation.setOptions({
             title: videoInfo.title,
         })
     }, [])
+
+    const playNext = () => {
+        if (isEpisode) {
+            if (activeEpisode < (videoInfo as Episode).episodes - 1) {
+                setActiveEpisode(
+                    prevEpisode => prevEpisode + 1
+                )
+            }
+        }
+    }
 
     useEffect(() => {
         if (isFullscreen) {
@@ -86,14 +97,13 @@ function Video() {
 
     return (
         <View style={{ flex: 1 }}>
-            {playingUrl === '' ? <ActivityIndicator /> : (
-                <VideoPlayer
-                    width={Dimensions.get('window').width}
-                    height={isFullscreen ? (Dimensions.get('window').height - insets.bottom - headerHeight) : Dimensions.get('window').height * .4}
-                    url={playingUrl}
-                    onRequestFullscreen={() => setIsFullscreen(!isFullscreen)}
-                />
-            )}
+            <VideoPlayer
+                width={Dimensions.get('window').width}
+                height={isFullscreen ? (Dimensions.get('window').height - insets.bottom - headerHeight) : Dimensions.get('window').height * .4}
+                url={playingUrl}
+                onRequestFullscreen={() => setIsFullscreen(!isFullscreen)}
+                onEnd={playNext}
+            />
             {
                 !isFullscreen && (
                     <View style={{ flex: 1, backgroundColor: paperColor }}>
@@ -116,11 +126,9 @@ function Video() {
                                                 (m3u8, index) => (
                                                     <EpisodeSelection
                                                         key={index}
-                                                        active={getM3u8Uri((videoInfo as Episode).url_template!, m3u8) === playingUrl}
+                                                        active={activeEpisode === index}
                                                         onPress={
-                                                            () => setPlayingUrl(
-                                                                getM3u8Uri((videoInfo as Episode).url_template!, m3u8)
-                                                            )
+                                                            () => setActiveEpisode(index)
                                                         }
                                                     >第{index + 1}集</EpisodeSelection>
                                                 )
@@ -145,7 +153,7 @@ function Video() {
 
 function EpisodeSelection({ active, children, onPress }: { active: boolean, children: React.ReactNode, onPress: () => void }) {
 
-    const { textColor, backgroundColor } = useTheme()
+    const { textColor } = useTheme()
 
     const viewStyle = {
         borderColor: textColor,

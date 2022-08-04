@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, Image } from 'react-native';
 import Video, { type ProcessParams, type VideoInfo, type PlayerRef } from 'react-native-video';
 import Touchable from '../components/Touchable';
 import { FadeView } from './Animated';
+import LoadingIndicator from './LoadingIndicator';
+import { useBitSize } from '../hook/byteSize';
 
 function timeFormatter(sf: number): string {
     const s = Math.round(sf)
@@ -17,27 +19,27 @@ interface VideoPlayerProps {
     width: number;
     height: number;
     onRequestFullscreen?: () => void;
+    onEnd?: () => void;
 }
 
-function VideoPlayer({ url, width, height, onRequestFullscreen }: VideoPlayerProps) {
+function VideoPlayer({ url, width, height, onRequestFullscreen, onEnd }: VideoPlayerProps) {
 
     const playerRef = useRef<PlayerRef>()
-    const [loading, setLoading] = useState(false);
     const timeoutRef = useRef<number>();
     const [paused, setPaused] = useState(false)
     const [seeking, setSeeking] = useState(false)
     const [controlShow, setControlShow] = useState(true)
     const [totalDuration, setTotalDuration] = useState(0)
 
+    const [isBuffering, setIsBuffering] = useState(false)
+
+    const [bitSize, setBitrate] = useBitSize(0)
+
     const [process, setProcess] = useState<ProcessParams>({
         currentTime: 0,
         playableDuration: 0,
         seekableDuration: 0
     });
-
-    useEffect(() => {
-        setLoading(true);
-    }, [url])
 
     const clearControlDismissTimeout = () => {
         if (timeoutRef.current) {
@@ -88,7 +90,7 @@ function VideoPlayer({ url, width, height, onRequestFullscreen }: VideoPlayerPro
                 <Video
                     source={{ uri: url }}
                     paused={paused}
-                    onReadyForDisplay={() => setLoading(false)}
+                    minLoadRetryCount={20}
                     ref={
                         /* @ts-ignore */
                         ref => playerRef.current = ref
@@ -99,8 +101,11 @@ function VideoPlayer({ url, width, height, onRequestFullscreen }: VideoPlayerPro
                         }
                     }
                     onSeek={
-                        () => { }
+                        () => {
+                            setSeeking(false)
+                        }
                     }
+                    onEnd={onEnd}
                     onPlaybackStateChanged={
                         ({ isPlaying }) => {
                             if (isPlaying) {
@@ -118,10 +123,17 @@ function VideoPlayer({ url, width, height, onRequestFullscreen }: VideoPlayerPro
                             }
                         }
                     }
+                    onBuffer={
+                        ({ isBuffering }) => setIsBuffering(isBuffering)
+                    }
+                    reportBandwidth
+                    onBandwidthUpdate={
+                        ({ bitrate }) => setBitrate(bitrate)
+                    }
                     style={{ width, height }}
                 />
             </Touchable>
-            <FadeView in={controlShow && !loading} duration={250} style={{
+            <FadeView in={controlShow || isBuffering} duration={250} style={{
                 position: 'absolute',
                 bottom: 0,
                 padding: 10,
@@ -160,15 +172,28 @@ function VideoPlayer({ url, width, height, onRequestFullscreen }: VideoPlayerPro
                         flexDirection: 'row',
                         alignItems: 'center',
                     }}>
-                        <TouchableOpacity onPress={
-                            () => setPaused(!paused)
-                        }>
-                            <Image style={{
-                                width: 30,
-                                height: 30,
-                                resizeMode: 'contain'
-                            }} source={paused ? require('../assets/play.png') : require('../assets/pause.png')} />
-                        </TouchableOpacity>
+                        {
+                            isBuffering ? (
+                                <View style={{
+                                    width: 30,
+                                    height: 30,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                }}>
+                                    <LoadingIndicator color="#fff" size={25} />
+                                </View>
+                            ) : (
+                                <TouchableOpacity onPress={
+                                    () => setPaused(!paused)
+                                }>
+                                    <Image style={{
+                                        width: 30,
+                                        height: 30,
+                                        resizeMode: 'contain'
+                                    }} source={paused ? require('../assets/play.png') : require('../assets/pause.png')} />
+                                </TouchableOpacity>
+                            )
+                        }
                         <Text style={{ color: '#fff', marginLeft: 15 }}>{timeFormatter(process.currentTime) + ' / ' + timeFormatter(totalDuration)}</Text>
                     </View>
                     <TouchableOpacity onPress={onRequestFullscreen}>
@@ -180,22 +205,13 @@ function VideoPlayer({ url, width, height, onRequestFullscreen }: VideoPlayerPro
                     </TouchableOpacity>
                 </View>
             </FadeView>
-            {
-                loading && (
-                    <View style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        width: '100%',
-                        height: '100%',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        backgroundColor: 'transparent'
-                    }}>
-                        <ActivityIndicator size="large" color="purple" />
-                    </View>
-                )
-            }
+            <View style={{
+                position: 'absolute',
+                right: 10,
+                top: 10
+            }}>
+                <Text style={{ color: '#fff', fontSize: 12 }}>{bitSize}</Text>
+            </View>
         </View>
     )
 }
