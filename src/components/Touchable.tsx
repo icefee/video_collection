@@ -15,14 +15,18 @@ function Touchable({ children, onTouchStart, onTouchUpdate, onDoubleTap, onPress
     const handlePress = (event: GestureResponderEvent) => {
         if (!firstTap) {
             setFirstTap(+new Date())
+            onPress?.(event)
         }
         else {
-            if(Date.now() - firstTap < 400) {
+            const now = Date.now();
+            if(now - firstTap < 400) {
                 onDoubleTap?.()
             }
-            setFirstTap(null)
+            else {
+                onPress?.(event)
+            }
+            setFirstTap(now)
         }
-        onPress?.(event)
     }
 
     return (

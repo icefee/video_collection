@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, Image, AppState, type AppStateStatus } from 'react-native';
+import { View, Text, TouchableOpacity, Image, AppState, Alert, type AppStateStatus } from 'react-native';
 import Video, { type ProcessParams, type VideoInfo, type PlayerRef } from 'react-native-video';
 import Touchable from '../components/Touchable';
 import { FadeView } from './Animated';
@@ -52,7 +52,7 @@ function VideoPlayer({ url, width, height, onRequestFullscreen, onEnd }: VideoPl
 
     const _handleAppStateChange = (state: AppStateStatus) => {
         if (
-            appState.current.match(/inactive|background/) &&
+            appState.current.match(/inactive|background|active/) &&
             state === 'active'
         ) {
             setPaused(false);
@@ -64,10 +64,21 @@ function VideoPlayer({ url, width, height, onRequestFullscreen, onEnd }: VideoPl
     }
 
     useEffect(() => {
+        setProcess({
+            currentTime: 0,
+            playableDuration: 0,
+            seekableDuration: 0
+        })
+    }, [url])
+
+    useEffect(() => {
 
         const listener = AppState.addEventListener('change', _handleAppStateChange);
 
-        return () => listener.remove();
+        return () => {
+            listener.remove();
+            clearControlDismissTimeout()
+        }
     }, []);
 
     return (
@@ -77,7 +88,7 @@ function VideoPlayer({ url, width, height, onRequestFullscreen, onEnd }: VideoPl
             alignItems: 'center',
             position: 'relative',
         }}>
-            <Touchable onTouchStart={
+            <Touchable onPress={
                 () => {
                     if (controlShow) {
                         setControlShow(false);
