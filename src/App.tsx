@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   SafeAreaView,
   StatusBar,
   View,
 } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useTheme } from './hook/theme';
@@ -38,7 +38,7 @@ const App = () => {
 function Navigation() {
 
   const insets = useSafeAreaInsets();
-  const { headerColor, textColor } = useTheme();
+  const { headerColor, textColor, statusBarColor, paperColor, isDark } = useTheme();
 
   const commonOptions = {
     headerStyle: {
@@ -49,13 +49,26 @@ function Navigation() {
     },
     contentStyle: {
       paddingBottom: insets.bottom
-    }
+    },
+    statusBarColor,
+    // headerBackImageSource: backImageAsset
   }
+
   return (
-    <NavigationContainer>
+    <NavigationContainer theme={{
+      dark: isDark,
+      colors: {
+        primary: textColor,
+        background: headerColor,
+        card: paperColor,
+        text: textColor,
+        border: textColor,
+        notification: headerColor
+      }
+    }}>
       <Stack.Navigator screenOptions={commonOptions} initialRouteName="home">
         <Stack.Screen name="home" component={Home} options={{ // navigationBar
-          title: '视频文件夹'
+          title: '视频文件夹',
         }} />
         <Stack.Screen name="video" component={Video} />
       </Stack.Navigator>

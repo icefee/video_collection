@@ -1,5 +1,5 @@
 import { useColorScheme } from 'react-native';
-import { type StatusBarStyle } from 'react-native';
+import { type StatusBarStyle, type ImageSourcePropType } from 'react-native';
 
 interface ThemeColor {
     backgroundColor: string;
@@ -10,6 +10,8 @@ interface ThemeColor {
     headerColor: string;
     statusBarColor: string;
     statusBarStyle: StatusBarStyle;
+    backImageAsset: ImageSourcePropType;
+    isDark: boolean;
 }
 
 export function useTheme(): ThemeColor {
@@ -21,9 +23,11 @@ export function useTheme(): ThemeColor {
             paperColor: '#222',
             borderColor: '#444',
             textColor: '#fff',
-            headerColor: '#666',
+            headerColor: '#222',
             statusBarColor: '#222',
-            statusBarStyle: 'dark-content'
+            statusBarStyle: 'dark-content',
+            backImageAsset: require('../assets/back_light.png'),
+            isDark: true
         }
     }
     else {
@@ -34,8 +38,10 @@ export function useTheme(): ThemeColor {
             borderColor: '#eee',
             textColor: '#000',
             headerColor: '#fff',
-            statusBarColor: '#f3f3f3',
-            statusBarStyle: 'light-content'
+            statusBarColor: '#999',
+            statusBarStyle: 'light-content',
+            backImageAsset: require('../assets/back_dark.png'),
+            isDark: false
         }
     }
 }

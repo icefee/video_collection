@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { View, Text, TouchableOpacity, Image, AppState, Alert, type AppStateStatus } from 'react-native';
 import Video, { type ProcessParams, type VideoInfo, type PlayerRef } from 'react-native-video';
 import Touchable from '../components/Touchable';
@@ -41,6 +41,10 @@ function VideoPlayer({ url, width, height, onRequestFullscreen, onEnd }: VideoPl
         seekableDuration: 0
     });
 
+    const createControlDismissTimeout = () => {
+        timeoutRef.current = setTimeout(() => setControlShow(false), 3000)
+    }
+
     const clearControlDismissTimeout = () => {
         if (timeoutRef.current) {
             clearTimeout(timeoutRef.current)
@@ -58,6 +62,7 @@ function VideoPlayer({ url, width, height, onRequestFullscreen, onEnd }: VideoPl
             setPaused(false);
         }
         else {
+            clearControlDismissTimeout();
             setPaused(true);
         }
         appState.current = state;
@@ -81,6 +86,33 @@ function VideoPlayer({ url, width, height, onRequestFullscreen, onEnd }: VideoPl
         }
     }, []);
 
+    const processBar = useMemo(() => {
+        return (
+            <View style={{
+                position: 'relative',
+                width: '100%',
+                backgroundColor: 'rgba(255, 255, 255, .3)',
+                height: 3,
+                flex: 1,
+            }}>
+                <View style={{
+                    position: 'absolute',
+                    left: 0,
+                    width: process.playableDuration * 100 / totalDuration + '%',
+                    backgroundColor: 'rgba(255, 255, 255, .5)',
+                    height: '100%'
+                }} />
+                <View style={{
+                    position: 'absolute',
+                    left: 0,
+                    width: process.currentTime * 100 / totalDuration + '%',
+                    backgroundColor: 'purple',
+                    height: '100%'
+                }} />
+            </View>
+        )
+    }, [process, totalDuration])
+
     return (
         <View style={{
             backgroundColor: '#000',
@@ -96,11 +128,13 @@ function VideoPlayer({ url, width, height, onRequestFullscreen, onEnd }: VideoPl
                     }
                     else {
                         setControlShow(true)
+                        createControlDismissTimeout();
                     }
                 }
             } onTouchUpdate={
                 rate => {
                     setControlShow(true);
+                    clearControlDismissTimeout();
                     setSeeking(true);
                     const currentTime = Math.min(
                         totalDuration,
@@ -137,13 +171,14 @@ function VideoPlayer({ url, width, height, onRequestFullscreen, onEnd }: VideoPl
                     onSeek={
                         () => {
                             setSeeking(false)
+                            createControlDismissTimeout()
                         }
                     }
                     onEnd={onEnd}
                     onPlaybackStateChanged={
                         ({ isPlaying }) => {
                             if (isPlaying) {
-                                timeoutRef.current = setTimeout(() => setControlShow(false), 3000)
+                                createControlDismissTimeout()
                             }
                             else {
                                 clearControlDismissTimeout()
@@ -174,28 +209,7 @@ function VideoPlayer({ url, width, height, onRequestFullscreen, onEnd }: VideoPl
                 width: '100%',
                 backgroundColor: 'rgba(0, 0, 0, .6)'
             }}>
-                <View style={{
-                    position: 'relative',
-                    width: '100%',
-                    backgroundColor: 'rgba(255, 255, 255, .3)',
-                    height: 3,
-                    flex: 1,
-                }}>
-                    <View style={{
-                        position: 'absolute',
-                        left: 0,
-                        width: process.playableDuration * 100 / totalDuration + '%',
-                        backgroundColor: 'rgba(128, 0, 128, .4)',
-                        height: '100%'
-                    }} />
-                    <View style={{
-                        position: 'absolute',
-                        left: 0,
-                        width: process.currentTime * 100 / totalDuration + '%',
-                        backgroundColor: 'purple',
-                        height: '100%'
-                    }} />
-                </View>
+                {processBar}
                 <View style={{
                     flexDirection: 'row',
                     justifyContent: 'space-between',
@@ -239,6 +253,11 @@ function VideoPlayer({ url, width, height, onRequestFullscreen, onEnd }: VideoPl
                     </TouchableOpacity>
                 </View>
             </FadeView>
+            <FadeView in={!controlShow && !isBuffering} duration={200} style={{
+                position: 'absolute',
+                width: '100%',
+                bottom: 0
+            }}>{processBar}</FadeView>
             <View style={{
                 position: 'absolute',
                 right: 10,

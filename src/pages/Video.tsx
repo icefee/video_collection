@@ -191,7 +191,7 @@ function Video() {
 
 function EpisodeSelection({ active, children, onPress }: { active: boolean, children: React.ReactNode, onPress: () => void }) {
 
-    const { textColor } = useTheme()
+    const { textColor, isDark } = useTheme()
 
     const viewStyle = {
         borderColor: textColor,
@@ -199,7 +199,7 @@ function EpisodeSelection({ active, children, onPress }: { active: boolean, chil
     }
 
     const textStyle = {
-        color: textColor
+        color: (active || isDark) ? '#fff' : textColor
     }
 
     return (
