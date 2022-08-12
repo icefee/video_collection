@@ -18,11 +18,12 @@ interface VideoPlayerProps {
     url: string;
     width: number;
     height: number;
+    fullscreen: boolean;
     onRequestFullscreen?: () => void;
     onEnd?: () => void;
 }
 
-function VideoPlayer({ url, width, height, onRequestFullscreen, onEnd }: VideoPlayerProps) {
+function VideoPlayer({ url, width, height, fullscreen, onRequestFullscreen, onEnd }: VideoPlayerProps) {
 
     const playerRef = useRef<PlayerRef>()
     const timeoutRef = useRef<number>();

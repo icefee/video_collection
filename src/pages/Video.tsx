@@ -96,7 +96,7 @@ function Video() {
 
     const enterFullscreen = () => {
         Orientation.lockToLandscapeLeft()
-        StatusBar.setHidden(true)
+        StatusBar.setTranslucent(true)
         navigation.setOptions({
             headerShown: false
         })
@@ -105,7 +105,7 @@ function Video() {
 
     const dismissFullscreen = () => {
         Orientation.lockToPortrait()
-        StatusBar.setHidden(false)
+        StatusBar.setTranslucent(false)
         navigation.setOptions({
             headerShown: true
         })
@@ -132,6 +132,7 @@ function Video() {
                 width={videoWidth}
                 height={videoHeight}
                 url={playingUrl}
+                fullscreen={isFullscreen}
                 onRequestFullscreen={() => {
                     if (isFullscreen) {
                         dismissFullscreen()
