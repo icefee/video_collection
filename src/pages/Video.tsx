@@ -23,7 +23,7 @@ export const getM3u8Uri: (url_template: string, m3u8: M3u8Video) => string = (ur
 function Video() {
     const route = useRoute()
     const navigation = useNavigation()
-    const { paperColor, textColor } = useTheme()
+    const { paperColor, textColor, statusBarColor } = useTheme()
     const [isFullscreen, setIsFullscreen] = useState(false)
     const [activeEpisode, setActiveEpisode] = useState(0)
 
@@ -95,19 +95,23 @@ function Video() {
     }, [isFullscreen])
 
     const enterFullscreen = () => {
-        Orientation.lockToLandscapeLeft()
-        StatusBar.setTranslucent(true)
+        Orientation.lockToLandscapeLeft();
+        // StatusBar.setBackgroundColor('transparent');
+        // StatusBar.setTranslucent(true)
         navigation.setOptions({
-            headerShown: false
+            headerShown: false,
+            statusBarColor: 'transparent'
         })
         setIsFullscreen(true)
     }
 
     const dismissFullscreen = () => {
         Orientation.lockToPortrait()
-        StatusBar.setTranslucent(false)
+        // StatusBar.setBackgroundColor(statusBarColor);
+        // StatusBar.setTranslucent(false)
         navigation.setOptions({
-            headerShown: true
+            headerShown: true,
+            statusBarColor
         })
         setIsFullscreen(false)
     }

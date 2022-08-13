@@ -262,7 +262,7 @@ function VideoPlayer({ url, width, height, fullscreen, onRequestFullscreen, onEn
             <View style={{
                 position: 'absolute',
                 right: 10,
-                top: 10
+                top: fullscreen ? 30 : 10
             }}>
                 <Text style={{ color: '#fff', fontSize: 12 }}>{bitSize}</Text>
             </View>

@@ -1,10 +1,10 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import {
   SafeAreaView,
   StatusBar,
   View,
 } from 'react-native';
-import { NavigationContainer, useNavigation } from '@react-navigation/native';
+import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useTheme } from './hook/theme';
@@ -23,7 +23,7 @@ const App = () => {
 
   return (
     <SafeAreaView style={backgroundStyle}>
-      <StatusBar barStyle={statusBarStyle} />
+      <StatusBar translucent barStyle={statusBarStyle} />
       <View style={{
         height: '100%'
       }}>
@@ -51,6 +51,7 @@ function Navigation() {
       paddingBottom: insets.bottom
     },
     statusBarColor,
+    statusBarTranslucent: true
     // headerBackImageSource: backImageAsset
   }
 
