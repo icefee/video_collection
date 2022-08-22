@@ -43,7 +43,7 @@ function VideoPlayer({ url, width, height, fullscreen, onRequestFullscreen, onEn
     });
 
     const createControlDismissTimeout = () => {
-        timeoutRef.current = setTimeout(() => setControlShow(false), 3000)
+        timeoutRef.current = setTimeout(() => setControlShow(false), 5000)
     }
 
     const clearControlDismissTimeout = () => {
@@ -202,58 +202,58 @@ function VideoPlayer({ url, width, height, fullscreen, onRequestFullscreen, onEn
                     }
                     style={{ width, height }}
                 />
-            </Touchable>
-            <FadeView in={controlShow || isBuffering} duration={250} style={{
-                position: 'absolute',
-                bottom: 0,
-                padding: 10,
-                width: '100%',
-                backgroundColor: 'rgba(0, 0, 0, .6)'
-            }}>
-                {processBar}
-                <View style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginTop: 10
+                <FadeView in={controlShow || isBuffering} duration={250} style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    padding: 10,
+                    width: '100%',
+                    backgroundColor: 'rgba(0, 0, 0, .6)'
                 }}>
+                    {processBar}
                     <View style={{
                         flexDirection: 'row',
+                        justifyContent: 'space-between',
                         alignItems: 'center',
+                        marginTop: 10
                     }}>
-                        {
-                            isBuffering ? (
-                                <View style={{
-                                    width: 30,
-                                    height: 30,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                }}>
-                                    <LoadingIndicator color="#fff" size={25} />
-                                </View>
-                            ) : (
-                                <TouchableOpacity onPress={
-                                    () => setPaused(!paused)
-                                }>
-                                    <Image style={{
+                        <View style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                        }}>
+                            {
+                                isBuffering ? (
+                                    <View style={{
                                         width: 30,
                                         height: 30,
-                                        resizeMode: 'contain'
-                                    }} source={paused ? require('../assets/play.png') : require('../assets/pause.png')} />
-                                </TouchableOpacity>
-                            )
-                        }
-                        <Text style={{ color: '#fff', marginLeft: 15 }}>{timeFormatter(process.currentTime) + ' / ' + timeFormatter(totalDuration)}</Text>
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                    }}>
+                                        <LoadingIndicator color="#fff" size={25} />
+                                    </View>
+                                ) : (
+                                    <TouchableOpacity onPress={
+                                        () => setPaused(!paused)
+                                    }>
+                                        <Image style={{
+                                            width: 30,
+                                            height: 30,
+                                            resizeMode: 'contain'
+                                        }} source={paused ? require('../assets/play.png') : require('../assets/pause.png')} />
+                                    </TouchableOpacity>
+                                )
+                            }
+                            <Text style={{ color: '#fff', marginLeft: 15 }}>{timeFormatter(process.currentTime) + ' / ' + timeFormatter(totalDuration)}</Text>
+                        </View>
+                        <TouchableOpacity onPress={onRequestFullscreen}>
+                            <Image style={{
+                                width: 25,
+                                height: 25,
+                                resizeMode: 'center'
+                            }} source={require('../assets/fullscreen.png')} />
+                        </TouchableOpacity>
                     </View>
-                    <TouchableOpacity onPress={onRequestFullscreen}>
-                        <Image style={{
-                            width: 25,
-                            height: 25,
-                            resizeMode: 'center'
-                        }} source={require('../assets/fullscreen.png')} />
-                    </TouchableOpacity>
-                </View>
-            </FadeView>
+                </FadeView>
+            </Touchable>
             <FadeView in={!controlShow && !isBuffering} duration={200} style={{
                 position: 'absolute',
                 width: '100%',
