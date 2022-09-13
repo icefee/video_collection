@@ -25,6 +25,7 @@ declare module 'react-native-video' {
         minLoadRetryCount?: number;
         resizeMode?: Exclude<ImageResizeMode, 'center' | 'repeat'> | 'none';
         onReadyForDisplay?: () => void;
+        onError?: (error: any) => void;
         onLoad?: (info: VideoInfo) => void;
         onProgress?: (payload: ProcessParams) => void;
         onPlaybackStateChanged?: (payload: { isPlaying: boolean; }) => void;
