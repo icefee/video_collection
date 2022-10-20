@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Pressable, Dimensions, type StyleProp, type GestureResponderEvent, type ViewStyle } from 'react-native';
+import LinearGradientView from './LinearGradientView';
 
 type ProcessBarProps = {
     buffered: number;
@@ -37,10 +38,9 @@ function ProcessBar({ buffered, played, onSeek, minimize = false }: ProcessBarPr
                 backgroundColor: 'rgba(255, 255, 255, .5)',
                 height: 2
             }} />
-            <View style={{
+            <LinearGradientView style={{
                 ...commonStyle,
                 width: played * 100 + '%',
-                backgroundColor: 'purple',
                 height: 2
             }} />
         </View>

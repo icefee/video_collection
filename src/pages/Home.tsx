@@ -3,6 +3,7 @@ import { ScrollView, Pressable, View, Text, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../hook/theme';
 import LoadingIndicator from '../components/LoadingIndicator'
+import LinearGradientView from '../components/LinearGradientView';
 
 const shields = [
     '韩国电影',
@@ -69,15 +70,15 @@ function VideoSection({ section }: { section: Section }) {
             backgroundColor: paperColor,
             borderRadius: 5
         }}>
-            <View style={{
+            <LinearGradientView style={{
                 padding: 10
             }}>
                 <Text style={{
                     fontSize: 18,
                     fontWeight: 'bold',
-                    color: 'purple'
+                    color: 'white'
                 }}>{section.section}</Text>
-            </View>
+            </LinearGradientView>
             <ScrollView style={{
                 paddingHorizontal: 10
             }} contentInsetAdjustmentBehavior="automatic">

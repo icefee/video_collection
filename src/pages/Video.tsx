@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, ScrollView, TouchableHighlight, StatusBar, Text, BackHandler } from 'react-native';
+import { View, ScrollView, TouchableHighlight, Text, BackHandler, type StyleProp, type ViewStyle } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import VideoPlayer from '../components/VideoPlayer';
 import { useTheme } from '../hook/theme';
 import Orientation from 'react-native-orientation';
 import { useWindowSize } from '../hook/screen';
+import LinearGradientView from '../components/LinearGradientView';
 
 export const getM3u8Uri: (url_template: string, m3u8: M3u8Video) => string = (url_template, m3u8) => {
     if (typeof m3u8 === 'string') {
@@ -166,7 +167,7 @@ function Video() {
                                     }}>
                                         {
                                             (videoInfo as Episode).m3u8_list.map(
-                                                (m3u8, index) => (
+                                                (_m3u8, index) => (
                                                     <EpisodeSelection
                                                         key={index}
                                                         active={activeEpisode === index}
@@ -198,7 +199,11 @@ function EpisodeSelection({ active, children, onPress }: { active: boolean, chil
 
     const { textColor, isDark } = useTheme()
 
-    const viewStyle = {
+    const viewStyle: StyleProp<ViewStyle> = {
+        borderWidth: 1,
+        height: 40,
+        justifyContent: 'center',
+        alignItems: 'center',
         borderColor: textColor,
         backgroundColor: active ? 'purple' : 'transparent'
     }
@@ -207,20 +212,26 @@ function EpisodeSelection({ active, children, onPress }: { active: boolean, chil
         color: (active || isDark) ? '#fff' : textColor
     }
 
+    const text = (
+        <Text style={textStyle}>{children}</Text>
+    )
+
     return (
         <View style={{
             width: '20%',
             padding: 5
         }}>
-            <TouchableHighlight underlayColor="purple" style={{
-                borderWidth: 2,
-                height: 40,
-                justifyContent: 'center',
-                alignItems: 'center',
-                ...viewStyle
-            }} onPress={onPress}>
-                <Text style={{ ...textStyle }}>{children}</Text>
-            </TouchableHighlight>
+            {
+                active ? (
+                    <LinearGradientView style={viewStyle}>
+                        {text}
+                    </LinearGradientView>
+                ) : (
+                    <TouchableHighlight underlayColor="transparent" style={viewStyle} onPress={onPress}>
+                        {text}
+                    </TouchableHighlight>
+                )
+            }
         </View>
     )
 }
