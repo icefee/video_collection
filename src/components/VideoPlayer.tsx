@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { View, Text, TouchableOpacity, Image, AppState, Dimensions, Pressable, type AppStateStatus, type GestureResponderEvent } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, TouchableOpacity, Image, AppState, type AppStateStatus } from 'react-native';
 import Video, { type ProcessParams, type VideoInfo, type PlayerRef } from 'react-native-video';
 import Touchable from '../components/Touchable';
 import { FadeView } from './Animated';
+import ProcessBar from './ProcessBar';
 import LoadingIndicator from './LoadingIndicator';
 import { useBitSize } from '../hook/byteSize';
 
@@ -87,47 +88,6 @@ function VideoPlayer({ url, width, height, fullscreen, onRequestFullscreen, onEn
             clearControlDismissTimeout()
         }
     }, []);
-
-    const processBar = useMemo(() => {
-        return (
-            <Pressable onPress={
-                (event: GestureResponderEvent) => {
-                    const currentTime = event.nativeEvent.pageX * totalDuration / Dimensions.get('window').width;
-                    setProcess(params => ({
-                        ...params,
-                        currentTime
-                    }))
-                    setSeeking(true)
-                    playerRef.current?.seek(currentTime)
-                }
-            }>
-                <View style={{
-                    position: 'relative',
-                    width: '100%',
-                    backgroundColor: 'rgba(255, 255, 255, .3)',
-                    height: 5,
-                    flex: 1,
-                    borderRadius: 5,
-                    overflow: 'hidden'
-                }}>
-                    <View style={{
-                        position: 'absolute',
-                        left: 0,
-                        width: process.playableDuration * 100 / totalDuration + '%',
-                        backgroundColor: 'rgba(255, 255, 255, .5)',
-                        height: '100%'
-                    }} />
-                    <View style={{
-                        position: 'absolute',
-                        left: 0,
-                        width: process.currentTime * 100 / totalDuration + '%',
-                        backgroundColor: 'purple',
-                        height: '100%'
-                    }} />
-                </View>
-            </Pressable>
-        )
-    }, [process, totalDuration])
 
     return (
         <View style={{
@@ -225,7 +185,21 @@ function VideoPlayer({ url, width, height, fullscreen, onRequestFullscreen, onEn
                 width: '100%',
                 backgroundColor: 'rgba(0, 0, 0, .6)'
             }}>
-                {processBar}
+                <ProcessBar
+                    buffered={process.playableDuration / totalDuration}
+                    played={process.currentTime / totalDuration}
+                    onSeek={
+                        (loc) => {
+                            const currentTime = loc * totalDuration;
+                            setProcess(params => ({
+                                ...params,
+                                currentTime
+                            }))
+                            setSeeking(true)
+                            playerRef.current?.seek(currentTime)
+                        }
+                    }
+                />
                 <View style={{
                     flexDirection: 'row',
                     justifyContent: 'space-between',
@@ -273,7 +247,9 @@ function VideoPlayer({ url, width, height, fullscreen, onRequestFullscreen, onEn
                 position: 'absolute',
                 width: '100%',
                 bottom: 0
-            }}>{processBar}</FadeView>
+            }}>
+                <ProcessBar buffered={process.playableDuration / totalDuration} played={process.currentTime / totalDuration} minimize />
+            </FadeView>
             <View style={{
                 position: 'absolute',
                 right: 10,

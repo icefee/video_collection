@@ -6,7 +6,8 @@ import LoadingIndicator from '../components/LoadingIndicator'
 
 const shields = [
     '韩国电影',
-    '纪录片'
+    '纪录片',
+    '私密'
 ];
 
 async function getVideos() {
