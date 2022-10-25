@@ -18,3 +18,9 @@ declare interface Film {
 }
 
 declare type Video = Episode | Film
+
+declare interface TVChannel {
+    id: number;
+    title: string;
+    url: string;
+}

@@ -17,6 +17,7 @@ function timeFormatter(sf: number): string {
 
 interface VideoPlayerProps {
     url: string;
+    live?: boolean;
     width: number;
     height: number;
     fullscreen: boolean;
@@ -24,7 +25,7 @@ interface VideoPlayerProps {
     onEnd?: () => void;
 }
 
-function VideoPlayer({ url, width, height, fullscreen, onRequestFullscreen, onEnd }: VideoPlayerProps) {
+function VideoPlayer({ url, live = false, width, height, fullscreen, onRequestFullscreen, onEnd }: VideoPlayerProps) {
 
     const playerRef = useRef<PlayerRef>()
     const timeoutRef = useRef<number>();
@@ -109,21 +110,23 @@ function VideoPlayer({ url, width, height, fullscreen, onRequestFullscreen, onEn
                 }
             } onTouchUpdate={
                 rate => {
-                    setControlShow(true);
-                    clearControlDismissTimeout();
-                    setSeeking(true);
-                    const currentTime = Math.min(
-                        totalDuration,
-                        Math.max(
-                            0,
-                            process.currentTime + rate * totalDuration
-                        )
-                    );
-                    playerRef.current?.seek(currentTime)
-                    setProcess(params => ({
-                        ...params,
-                        currentTime
-                    }))
+                    if (!live) {
+                        setControlShow(true);
+                        clearControlDismissTimeout();
+                        setSeeking(true);
+                        const currentTime = Math.min(
+                            totalDuration,
+                            Math.max(
+                                0,
+                                process.currentTime + rate * totalDuration
+                            )
+                        );
+                        playerRef.current?.seek(currentTime)
+                        setProcess(params => ({
+                            ...params,
+                            currentTime
+                        }))
+                    }
                 }
             } onDoubleTap={
                 () => {
@@ -185,21 +188,25 @@ function VideoPlayer({ url, width, height, fullscreen, onRequestFullscreen, onEn
                 width: '100%',
                 backgroundColor: 'rgba(0, 0, 0, .6)'
             }}>
-                <ProcessBar
-                    buffered={process.playableDuration / totalDuration}
-                    played={process.currentTime / totalDuration}
-                    onSeek={
-                        (loc) => {
-                            const currentTime = loc * totalDuration;
-                            setProcess(params => ({
-                                ...params,
-                                currentTime
-                            }))
-                            setSeeking(true)
-                            playerRef.current?.seek(currentTime)
-                        }
-                    }
-                />
+                {
+                    !live && (
+                        <ProcessBar
+                            buffered={process.playableDuration / totalDuration}
+                            played={process.currentTime / totalDuration}
+                            onSeek={
+                                (loc) => {
+                                    const currentTime = loc * totalDuration;
+                                    setProcess(params => ({
+                                        ...params,
+                                        currentTime
+                                    }))
+                                    setSeeking(true)
+                                    playerRef.current?.seek(currentTime)
+                                }
+                            }
+                        />
+                    )
+                }
                 <View style={{
                     flexDirection: 'row',
                     justifyContent: 'space-between',
@@ -232,7 +239,9 @@ function VideoPlayer({ url, width, height, fullscreen, onRequestFullscreen, onEn
                                 </TouchableOpacity>
                             )
                         }
-                        <Text style={{ color: '#fff', marginLeft: 15 }}>{timeFormatter(process.currentTime) + ' / ' + timeFormatter(totalDuration)}</Text>
+                        {!live && (
+                            <Text style={{ color: '#fff', marginLeft: 15 }}>{timeFormatter(process.currentTime) + ' / ' + timeFormatter(totalDuration)}</Text>
+                        )}
                     </View>
                     <TouchableOpacity onPress={onRequestFullscreen}>
                         <Image style={{
@@ -243,7 +252,7 @@ function VideoPlayer({ url, width, height, fullscreen, onRequestFullscreen, onEn
                     </TouchableOpacity>
                 </View>
             </FadeView>
-            <FadeView in={!controlShow && !isBuffering} duration={200} style={{
+            <FadeView in={!controlShow && !isBuffering && !live} duration={200} style={{
                 position: 'absolute',
                 width: '100%',
                 bottom: 0

@@ -11,6 +11,7 @@ import { useTheme } from './hook/theme';
 
 import Home from './pages/Home';
 import Video from './pages/Video';
+import Tv from './pages/Tv';
 
 const Stack = createNativeStackNavigator();
 
@@ -72,6 +73,7 @@ function Navigation() {
           title: '视频文件夹',
         }} />
         <Stack.Screen name="video" component={Video} />
+        <Stack.Screen name="tv" component={Tv} />
       </Stack.Navigator>
     </NavigationContainer>
   )
