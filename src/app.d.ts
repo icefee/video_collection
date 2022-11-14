@@ -1,5 +1,7 @@
 /// <reference path="./video.d.ts" />
 
+type VoidFunction = () => void;
+
 declare module 'react-native-video' {
     import type { ClassicComponentClass } from 'react'
     import type { StyleProp, ViewStyle, ImageResizeMode } from 'react-native';
@@ -24,13 +26,13 @@ declare module 'react-native-video' {
         paused?: boolean;
         minLoadRetryCount?: number;
         resizeMode?: Exclude<ImageResizeMode, 'center' | 'repeat'> | 'none';
-        onReadyForDisplay?: () => void;
+        onReadyForDisplay?: VoidFunction;
         onError?: (error: any) => void;
         onLoad?: (info: VideoInfo) => void;
         onProgress?: (payload: ProcessParams) => void;
         onPlaybackStateChanged?: (payload: { isPlaying: boolean; }) => void;
         onSeek?: (payload: SeekParams) => void;
-        onEnd?: () => void;
+        onEnd?: VoidFunction;
         onBuffer?: (payload: { isBuffering: boolean; }) => void;
         reportBandwidth?: boolean;
         onBandwidthUpdate?: (payload: { bitrate: number; }) => void;
@@ -38,8 +40,8 @@ declare module 'react-native-video' {
     }>;
 
     export interface PlayerRef {
-        presentFullscreenPlayer(): void;
-        dismissFullscreenPlayer(): void;
+        presentFullscreenPlayer: VoidFunction;
+        dismissFullscreenPlayer: VoidFunction;
         seek(duration: number): void;
     }
 
@@ -56,11 +58,11 @@ declare module 'react-native-orientation' {
 
     const _default: {
         getInitialOrientation: () => Orientation;
-        lockToPortrait: () => void;
-        lockToLandscape: () => void;
-        lockToLandscapeLeft: () => void;
-        lockToLandscapeRight: () => void;
-        unlockAllOrientations: () => void;
+        lockToPortrait: VoidFunction;
+        lockToLandscape: VoidFunction;
+        lockToLandscapeLeft: VoidFunction;
+        lockToLandscapeRight: VoidFunction;
+        unlockAllOrientations: VoidFunction;
         addOrientationListener: OrientationListener<Orientation>;
         removeOrientationListener: OrientationListener<Orientation>;
         addSpecificOrientationListener: OrientationListener<SpecificOrientation>;

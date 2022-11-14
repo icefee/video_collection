@@ -190,28 +190,31 @@ function VideoPlayer({ url, live = false, width, height, fullscreen, onRequestFu
             }}>
                 {
                     !live && (
-                        <ProcessBar
-                            buffered={process.playableDuration / totalDuration}
-                            played={process.currentTime / totalDuration}
-                            onSeek={
-                                (loc) => {
-                                    const currentTime = loc * totalDuration;
-                                    setProcess(params => ({
-                                        ...params,
-                                        currentTime
-                                    }))
-                                    setSeeking(true)
-                                    playerRef.current?.seek(currentTime)
+                        <View style={{
+                            marginBottom: 10
+                        }}>
+                            <ProcessBar
+                                buffered={process.playableDuration / totalDuration}
+                                played={process.currentTime / totalDuration}
+                                onSeek={
+                                    (loc) => {
+                                        const currentTime = loc * totalDuration;
+                                        setProcess(params => ({
+                                            ...params,
+                                            currentTime
+                                        }))
+                                        setSeeking(true)
+                                        playerRef.current?.seek(currentTime)
+                                    }
                                 }
-                            }
-                        />
+                            />
+                        </View>
                     )
                 }
                 <View style={{
                     flexDirection: 'row',
                     justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginTop: 10
+                    alignItems: 'center'
                 }}>
                     <View style={{
                         flexDirection: 'row',
