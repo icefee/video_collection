@@ -56,7 +56,8 @@ function useStackOptions() {
       paddingBottom: insets.bottom
     },
     statusBarColor,
-    statusBarTranslucent: true
+    statusBarTranslucent: true,
+    headerShown: false
     // headerBackImageSource: backImageAsset
   }
   return commonOptions;
@@ -83,8 +84,8 @@ function TabView() {
         tabBarInactiveTintColor: 'gray',
       })
     }>
-      <Tab.Screen name="video" component={VideoList} options={{ tabBarLabel: '影视剧', headerShown: false }} />
-      <Tab.Screen name="tv" component={TvList} options={{ tabBarLabel: '电视直播', headerShown: false }} />
+      <Tab.Screen name="video" component={VideoList} options={{ headerTitle: '影视剧', tabBarLabel: '影视剧' }} />
+      <Tab.Screen name="tv" component={TvList} options={{ headerTitle: '电视直播', tabBarLabel: '电视直播' }} />
     </Tab.Navigator>
   )
 }
@@ -113,9 +114,7 @@ function Navigation() {
       }
     }}>
       <Stack.Navigator screenOptions={options} initialRouteName="home">
-        <Stack.Screen name="home" component={TabView} options={{ // navigationBar
-          title: '视频文件夹',
-        }} />
+        <Stack.Screen name="home" component={TabView} />
         <Stack.Screen name="video_player" component={Video} />
         <Stack.Screen name="live_player" component={Tv} />
       </Stack.Navigator>
