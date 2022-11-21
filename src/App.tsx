@@ -57,7 +57,7 @@ function useStackOptions() {
     },
     statusBarColor,
     statusBarTranslucent: true,
-    headerShown: false
+    // headerShown: false
     // headerBackImageSource: backImageAsset
   }
   return commonOptions;
@@ -114,7 +114,7 @@ function Navigation() {
       }
     }}>
       <Stack.Navigator screenOptions={options} initialRouteName="home">
-        <Stack.Screen name="home" component={TabView} />
+        <Stack.Screen name="home" component={TabView} options={{ headerShown: false }} />
         <Stack.Screen name="video_player" component={Video} />
         <Stack.Screen name="live_player" component={Tv} />
       </Stack.Navigator>
