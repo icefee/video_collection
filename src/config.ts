@@ -1,2 +1,2 @@
 
-export const apiUrl = 'https://code-in-life.netlify.app';
+export const apiUrl = 'https://code-in-life.surge.sh';

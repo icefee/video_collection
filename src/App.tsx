@@ -62,27 +62,30 @@ function useStackOptions() {
   return commonOptions;
 }
 
-function VideoListTab() {
-  const options = useStackOptions()
+function TabView() {
   return (
-    <Stack.Navigator screenOptions={options} initialRouteName="video_list">
-      <Stack.Screen name="video_list" component={VideoList} options={{ // navigationBar
-        title: '视频文件夹',
-      }} />
-      <Stack.Screen name="video_player" component={Video} />
-    </Stack.Navigator>
-  )
-}
-
-function TvListTab() {
-  const options = useStackOptions()
-  return (
-    <Stack.Navigator screenOptions={options} initialRouteName="tv_list">
-      <Stack.Screen name="tv_list" component={TvList} options={{ // navigationBar
-        title: '电视直播',
-      }} />
-      <Stack.Screen name="live_player" component={Tv} />
-    </Stack.Navigator>
+    <Tab.Navigator screenOptions={
+      ({ route }) => ({
+        tabBarIcon: ({ focused }) => {
+          return (
+            <View>
+              <Image style={{
+                resizeMode: 'center',
+                width: 28,
+                height: 28
+              }} source={
+                assets[route.name + (focused ? '_active' : '')] as ImageSourcePropType
+              } />
+            </View>
+          )
+        },
+        tabBarActiveTintColor: '#5517e3',
+        tabBarInactiveTintColor: 'gray',
+      })
+    }>
+      <Tab.Screen name="video" component={VideoList} options={{ tabBarLabel: '影视剧', headerShown: false }} />
+      <Tab.Screen name="tv" component={TvList} options={{ tabBarLabel: '电视直播', headerShown: false }} />
+    </Tab.Navigator>
   )
 }
 
@@ -94,6 +97,7 @@ const assets = {
 } as Record<string, any>
 
 function Navigation() {
+  const options = useStackOptions()
   const { headerColor, textColor, paperColor, isDark } = useTheme();
 
   return (
@@ -108,28 +112,13 @@ function Navigation() {
         notification: headerColor
       }
     }}>
-      <Tab.Navigator screenOptions={
-        ({ route }) => ({
-          tabBarIcon: ({ focused }) => {
-            return (
-              <View>
-                <Image style={{
-                  resizeMode: 'center',
-                  width: 28,
-                  height: 28
-                }} source={
-                  assets[route.name + (focused ? '_active' : '')] as ImageSourcePropType
-                } />
-              </View>
-            )
-          },
-          tabBarActiveTintColor: '#5517e3',
-          tabBarInactiveTintColor: 'gray',
-        })
-      }>
-        <Tab.Screen name="video" component={VideoListTab} options={{ tabBarLabel: '影视剧', headerShown: false }} />
-        <Tab.Screen name="tv" component={TvListTab} options={{ tabBarLabel: '电视直播', headerShown: false }} />
-      </Tab.Navigator>
+      <Stack.Navigator screenOptions={options} initialRouteName="home">
+        <Stack.Screen name="home" component={TabView} options={{ // navigationBar
+          title: '视频文件夹',
+        }} />
+        <Stack.Screen name="video_player" component={Video} />
+        <Stack.Screen name="live_player" component={Tv} />
+      </Stack.Navigator>
     </NavigationContainer>
   )
 }
