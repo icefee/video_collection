@@ -16,6 +16,7 @@ import VideoList from './pages/VideoList';
 import TvList from './pages/TvList';
 import Video from './pages/Video';
 import Tv from './pages/Tv';
+import Search from './pages/Search';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -85,6 +86,7 @@ function TabView() {
       })
     }>
       <Tab.Screen name="video" component={VideoList} options={{ headerTitle: '影视剧', tabBarLabel: '影视剧' }} />
+      <Tab.Screen name="search" component={Search} options={{ headerTitle: '搜索', tabBarLabel: '搜索' }} />
       <Tab.Screen name="tv" component={TvList} options={{ headerTitle: '电视直播', tabBarLabel: '电视直播' }} />
     </Tab.Navigator>
   )
@@ -95,6 +97,8 @@ const assets = {
   video_active: require('./assets/video_active.png'),
   tv: require('./assets/tv.png'),
   tv_active: require('./assets/tv_active.png'),
+  search: require('./assets/search.png'),
+  search_active: require('./assets/search_active.png')
 } as Record<string, any>
 
 function Navigation() {

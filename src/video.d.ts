@@ -24,3 +24,54 @@ declare interface TVChannel {
     title: string;
     url: string;
 }
+
+declare interface SearchVideo {
+    key: string;
+    name: string;
+    data: VideoListItem[];
+    page: ResponsePagination;
+}
+
+declare interface ResponsePagination {
+    page: number;
+    pagecount: number;
+    pagesize: number;
+    recordcount: number;
+}
+
+declare interface VideoListItem {
+    id: number;
+    name: string;
+    note: string;
+    last: string;
+    dt: string;
+    tid: number;
+    type: string;
+}
+
+declare interface VideoInfo {
+    name: string;
+    note: string;
+    pic: string;
+    type: string;
+    year: string;
+    actor?: string;
+    area?: string;
+    des: string;
+    director?: string;
+    lang: string;
+    last: string;
+    state: number;
+    tid: number;
+    dataList: VideoSource[];
+}
+
+declare interface VideoSource {
+    name: string;
+    urls: VideoItem[];
+}
+
+declare interface VideoItem {
+    label: string;
+    url: string;
+}

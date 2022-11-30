@@ -19,47 +19,52 @@ interface TVChannelProps {
 
 function TVChannel({ data }: TVChannelProps) {
     const navigation = useNavigation();
-    const { textColor, paperColor, borderColor } = useTheme();
+    const { textColor, backgroundColor, paperColor, borderColor } = useTheme();
 
     return (
-        <View style={{
-            margin: 5,
-            backgroundColor: paperColor,
-        }}>
-            <ScrollView contentInsetAdjustmentBehavior="automatic">
-                {
-                    data.map(
-                        (channel, index) => (
-                            <Pressable key={channel.id} onPress={() => navigation.navigate({
-                                name: 'live_player',
-                                params: channel
-                            } as never)}>
-                                <View style={{
-                                    paddingVertical: 10,
-                                    paddingHorizontal: 5,
-                                    borderTopWidth: 1,
-                                    borderTopColor: index === 0 ? 'transparent' : borderColor,
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                }}>
-                                    <View>
-                                        <Text style={{ fontWeight: 'bold', fontSize: 16, color: textColor }}>{channel.title}</Text>
+        <ScrollView contentInsetAdjustmentBehavior="automatic">
+            <View style={{
+                padding: 5,
+                backgroundColor
+            }}>
+                <View style={{
+                    backgroundColor: paperColor,
+                    borderRadius: 5
+                }}>
+                    {
+                        data.map(
+                            (channel, index) => (
+                                <Pressable key={channel.id} onPress={() => navigation.navigate({
+                                    name: 'live_player',
+                                    params: channel
+                                } as never)}>
+                                    <View style={{
+                                        paddingVertical: 10,
+                                        paddingHorizontal: 5,
+                                        borderTopWidth: 1,
+                                        borderTopColor: index === 0 ? 'transparent' : borderColor,
+                                        flexDirection: 'row',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                    }}>
+                                        <View>
+                                            <Text style={{ fontWeight: 'bold', fontSize: 16, color: textColor }}>{channel.title}</Text>
+                                        </View>
+                                        <View>
+                                            <Image style={{
+                                                resizeMode: 'center',
+                                                width: 24,
+                                                height: 24
+                                            }} source={require('../assets/arrow-right.png')} />
+                                        </View>
                                     </View>
-                                    <View>
-                                        <Image style={{
-                                            resizeMode: 'center',
-                                            width: 24,
-                                            height: 24
-                                        }} source={require('../assets/arrow-right.png')} />
-                                    </View>
-                                </View>
-                            </Pressable>
+                                </Pressable>
+                            )
                         )
-                    )
-                }
-            </ScrollView>
-        </View>
+                    }
+                </View>
+            </View>
+        </ScrollView>
     )
 }
 
