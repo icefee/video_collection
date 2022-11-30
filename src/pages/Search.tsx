@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Image, TextInput, ScrollView, Text, TouchableOpacity, Alert } from 'react-native';
+import { View, Image, TextInput, ScrollView, Text, TouchableOpacity, ToastAndroid } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import LoadingIndicator from '../components/LoadingIndicator';
 import { apiUrl } from '../config';
@@ -76,7 +76,7 @@ function Search() {
             } as never)
         }
         else {
-            Alert.alert('数据访问错误, 请重试.')
+            ToastAndroid.showWithGravity('数据访问错误, 请重试.', ToastAndroid.SHORT, ToastAndroid.BOTTOM)
         }
 
         setLoading(false)
