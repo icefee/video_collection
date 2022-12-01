@@ -34,7 +34,7 @@ function Search() {
     const [videoList, setVideoList] = useState<SearchVideo[]>([])
     const [loading, setLoading] = useState(false)
 
-    const { backgroundColor, textColor, paperColor } = useTheme()
+    const { backgroundColor, textColor, paperColor, borderColor } = useTheme()
     const navigation = useNavigation();
 
     const getSearchResult = async (s: string) => {
@@ -94,22 +94,23 @@ function Search() {
         }}>
             <View style={{
                 padding: 5,
-                backgroundColor: '#fff'
+                backgroundColor: paperColor
             }}>
                 <View style={{
                     flexDirection: 'row',
                     alignItems: 'center',
                     borderWidth: 1,
+                    borderColor,
                     borderRadius: 5
                 }}>
                     <View style={{
-                        padding: 4,
+                        padding: 8,
                         paddingRight: 0
                     }}>
                         <Image style={{
                             resizeMode: 'center',
-                            width: 24,
-                            height: 24
+                            width: 20,
+                            height: 20
                         }} source={require('../assets/icon_search.png')} />
                     </View>
                     <TextInput

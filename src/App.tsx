@@ -83,6 +83,7 @@ function TabView() {
         },
         tabBarActiveTintColor: '#5517e3',
         tabBarInactiveTintColor: 'gray',
+        tabBarHideOnKeyboard: true
       })
     }>
       <Tab.Screen name="video" component={VideoList} options={{ headerTitle: '影视剧', tabBarLabel: '影视剧' }} />
