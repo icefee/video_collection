@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useTheme } from './hook/theme';
 
@@ -43,7 +43,6 @@ const App = () => {
 };
 
 function useStackOptions() {
-  const insets = useSafeAreaInsets();
   const { headerColor, textColor, statusBarColor } = useTheme();
 
   const commonOptions = {
@@ -52,9 +51,6 @@ function useStackOptions() {
     },
     headerTitleStyle: {
       color: textColor
-    },
-    contentStyle: {
-      paddingBottom: insets.bottom
     },
     statusBarColor,
     statusBarTranslucent: true,

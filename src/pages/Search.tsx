@@ -33,9 +33,12 @@ function Search() {
     const [keyword, setKeyword] = useState('')
     const [videoList, setVideoList] = useState<SearchVideo[]>([])
     const [loading, setLoading] = useState(false)
+    const [searchComplate, setSearchComplate] = useState(false)
 
-    const { backgroundColor, textColor, paperColor, borderColor } = useTheme()
+    const { backgroundColor, textColor, paperColor, borderColor, backdropColor } = useTheme()
     const navigation = useNavigation();
+
+    const showToast = (msg: string) => ToastAndroid.showWithGravity(msg, ToastAndroid.SHORT, ToastAndroid.BOTTOM)
 
     const getSearchResult = async (s: string) => {
 
@@ -43,6 +46,11 @@ function Search() {
 
         const result = await getSearch(s)
 
+        if (result.length === 0) {
+            showToast('没有搜索到相关内容.')
+        }
+
+        setSearchComplate(true)
         setVideoList(result)
         setLoading(false)
 
@@ -76,7 +84,7 @@ function Search() {
             } as never)
         }
         else {
-            ToastAndroid.showWithGravity('数据访问错误, 请重试.', ToastAndroid.SHORT, ToastAndroid.BOTTOM)
+            showToast('数据访问错误, 请重试.')
         }
 
         setLoading(false)
@@ -88,12 +96,36 @@ function Search() {
         }
     }
 
+    const withOverlay = (content: React.ReactNode) => {
+        return (
+            <View style={{
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                width: '100%',
+                height: '100%',
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor: backdropColor,
+            }}>
+                {content}
+            </View>
+        )
+    }
+
     return (
         <View style={{
             height: '100%'
         }}>
             <View style={{
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                width: '100%',
                 padding: 5,
+                zIndex: 20,
+                borderColor,
+                borderTopWidth: 1,
                 backgroundColor: paperColor
             }}>
                 <View style={{
@@ -129,6 +161,7 @@ function Search() {
             </View>
             <View style={{
                 position: 'relative',
+                paddingTop: 50,
                 flexGrow: 1
             }}>
                 <ScrollView style={{ backgroundColor }} contentInsetAdjustmentBehavior="automatic">
@@ -194,20 +227,10 @@ function Search() {
                     }
                 </ScrollView>
                 {
-                    loading && (
-                        <View style={{
-                            position: 'absolute',
-                            left: 0,
-                            top: 0,
-                            width: '100%',
-                            height: '100%',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            backgroundColor: 'rgba(0, 0, 0, .2)',
-                        }}>
-                            <LoadingIndicator />
-                        </View>
-                    )
+                    loading && withOverlay(<LoadingIndicator />)
+                }
+                {
+                    searchComplate && videoList.length === 0 && withOverlay(<Text>找不到相关内容</Text>)
                 }
             </View>
         </View>

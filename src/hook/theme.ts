@@ -9,6 +9,7 @@ interface ThemeColor {
     textColor: string;
     headerColor: string;
     statusBarColor: string;
+    backdropColor: string;
     statusBarStyle: StatusBarStyle;
     backImageAsset: ImageSourcePropType;
     isDark: boolean;
@@ -25,6 +26,7 @@ export function useTheme(): ThemeColor {
             textColor: '#fff',
             headerColor: '#222',
             statusBarColor: '#222',
+            backdropColor: 'rgba(0, 0, 0, .2)',
             statusBarStyle: 'dark-content',
             backImageAsset: require('../assets/back_light.png'),
             isDark: true
@@ -39,6 +41,7 @@ export function useTheme(): ThemeColor {
             textColor: '#000',
             headerColor: '#fff',
             statusBarColor: '#999',
+            backdropColor: 'rgba(255, 255, 255, .2)',
             statusBarStyle: 'light-content',
             backImageAsset: require('../assets/back_dark.png'),
             isDark: false
