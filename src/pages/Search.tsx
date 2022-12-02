@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { View, Image, TextInput, ScrollView, Text, TouchableOpacity, ToastAndroid } from 'react-native';
+import { View, Image, TextInput, ScrollView, Text, TouchableOpacity, ToastAndroid, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import LoadingIndicator from '../components/LoadingIndicator';
 import { apiUrl } from '../config';
@@ -194,24 +194,26 @@ function Search() {
                                                             backgroundColor: paperColor,
                                                             padding: 10,
                                                             borderRadius: 6,
-                                                            flexDirection: 'row'
+                                                            flexDirection: 'row',
+                                                            justifyContent: 'space-between'
                                                         }}>
                                                             <Poster
-                                                                width={80}
-                                                                height={120}
+                                                                width={100}
+                                                                height={150}
                                                                 api={site.key}
                                                                 id={video.id}
                                                             />
                                                             <View style={{
-                                                                flexGrow: 1,
-                                                                marginLeft: 8
+                                                                width: Dimensions.get('window').width - 150
                                                             }}>
-                                                                <View>
+                                                                <View style={{
+                                                                    flexBasis: '100%'
+                                                                }}>
                                                                     <Text style={{
                                                                         fontSize: 20,
                                                                         fontWeight: 'bold',
                                                                         color: textColor
-                                                                    }}>{video.name}</Text>
+                                                                    }} numberOfLines={2} textBreakStrategy="simple">{video.name}</Text>
                                                                 </View>
                                                                 <View style={{
                                                                     marginVertical: 8
@@ -264,7 +266,7 @@ interface PosterProps {
 
 function Poster({ width, height, api, id }: PosterProps) {
 
-    const { backgroundColor } = useTheme()
+    const { backgroundColor, backdropColor } = useTheme()
     const [src, setSrc] = useState<string | null>(null)
     const [pending, setPending] = useState(false)
     const [error, setError] = useState(false)
@@ -310,7 +312,8 @@ function Poster({ width, height, api, id }: PosterProps) {
             right: 0,
             bottom: 0,
             justifyContent: 'center',
-            alignItems: 'center'
+            alignItems: 'center',
+            backgroundColor: backdropColor
         }}>
             {child}
         </View>
