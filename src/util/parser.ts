@@ -9,6 +9,15 @@ export async function jsonBase64<T extends any>(response: Response) {
     return matchedBase64 ? JSON.parse(utf82utf16(base64.decode(matchedBase64[0]))) as T : null;
 }
 
+export async function image(response: Response) {
+    const text = await response.text()
+    const matchedImage = text.match(/https?:\/\/.+?\.((jpe?|pn)g|webp)/g)
+    if (matchedImage) {
+        return matchedImage[0]
+    }
+    return null;
+}
+
 function isNextResult(html: string) {
     const nextScriptMeta = /<script id=\"__NEXT_DATA__\" type=\"application\/json\">/
     return nextScriptMeta.test(html);

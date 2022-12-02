@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { View, Image, TextInput, ScrollView, Text, TouchableOpacity, ToastAndroid } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import LoadingIndicator from '../components/LoadingIndicator';
 import { apiUrl } from '../config';
 import { useTheme } from '../hook/theme';
-import { jsonBase64 } from '../util/parser';
+import { jsonBase64, image as imageParser } from '../util/parser';
 
 async function getSearch(s: string): Promise<SearchVideo[]> {
 
@@ -189,31 +189,45 @@ function Search() {
                                                         <View style={{
                                                             backgroundColor: paperColor,
                                                             padding: 10,
-                                                            borderRadius: 6
+                                                            borderRadius: 6,
+                                                            flexDirection: 'row'
                                                         }}>
-                                                            <View>
-                                                                <Text style={{
-                                                                    fontSize: 20,
-                                                                    fontWeight: 'bold',
-                                                                    color: textColor
-                                                                }}>{video.name}</Text>
-                                                            </View>
+                                                            <Poster
+                                                                width={80}
+                                                                height={120}
+                                                                api={site.key}
+                                                                id={video.id}
+                                                            />
                                                             <View style={{
-                                                                marginVertical: 8
+                                                                flexGrow: 1,
+                                                                marginLeft: 8
                                                             }}>
-                                                                {
-                                                                    Boolean(video.note) && (
-                                                                        <Text>{video.note}</Text>
-                                                                    )
-                                                                }
-                                                            </View>
-                                                            <View>
-                                                                <Tag>{video.type}</Tag>
-                                                            </View>
-                                                            <View style={{
-                                                                alignSelf: 'flex-end'
-                                                            }}>
-                                                                <Text>{video.last}</Text>
+                                                                <View>
+                                                                    <Text style={{
+                                                                        fontSize: 20,
+                                                                        fontWeight: 'bold',
+                                                                        color: textColor
+                                                                    }}>{video.name}</Text>
+                                                                </View>
+                                                                <View style={{
+                                                                    marginVertical: 8
+                                                                }}>
+                                                                    {
+                                                                        Boolean(video.note) && (
+                                                                            <Text>{video.note}</Text>
+                                                                        )
+                                                                    }
+                                                                </View>
+                                                                <View>
+                                                                    <Tag>{video.type}</Tag>
+                                                                </View>
+                                                                <View style={{
+                                                                    flexGrow: 1,
+                                                                    justifyContent: 'flex-end',
+                                                                    alignItems: 'flex-end'
+                                                                }}>
+                                                                    <Text>{video.last}</Text>
+                                                                </View>
                                                             </View>
                                                         </View>
                                                     </TouchableOpacity>
@@ -237,6 +251,110 @@ function Search() {
     )
 }
 
+interface PosterProps {
+    width: number | string;
+    height: number | string;
+    api: string;
+    id: number;
+}
+
+function Poster({ width, height, api, id }: PosterProps) {
+
+    const { backgroundColor } = useTheme()
+    const [src, setSrc] = useState<string | null>(null)
+    const [pending, setPending] = useState(false)
+    const [error, setError] = useState(false)
+
+    const getPoster = async (api: string, id: number) => {
+        setPending(true)
+        try {
+
+            const poster = await fetch(
+                apiUrl + `/video/${api}/${id}/poster`
+            ).then(response => imageParser(response))
+
+            if (poster) {
+                setSrc(poster)
+            }
+            else {
+                throw new Error('')
+            }
+        }
+        catch (error) {
+            setError(true)
+        }
+
+        setPending(false)
+
+    }
+
+    useEffect(() => {
+        getPoster(api, id)
+    }, [api, id])
+
+    const onLoad = () => setPending(false)
+    const onError = () => {
+        setError(true)
+        setPending(false)
+    }
+
+    const overlayWrapper = (child: React.ReactNode) => (
+        <View style={{
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            right: 0,
+            bottom: 0,
+            justifyContent: 'center',
+            alignItems: 'center'
+        }}>
+            {child}
+        </View>
+    )
+
+    const stateOverlay = useMemo(() => {
+        if (pending) {
+            return overlayWrapper(
+                <Text>加载中</Text>
+            )
+        }
+        if (error) {
+            return overlayWrapper(
+                <Text style={{
+                    color: '#f24'
+                }}>加载失败</Text>
+            )
+        }
+        return null;
+    }, [pending, error])
+
+    return (
+        <View style={{
+            position: 'relative',
+            width,
+            height,
+            backgroundColor
+        }}>
+            {
+                src && (
+                    <Image
+                        style={{
+                            width,
+                            height,
+                            resizeMode: 'cover'
+                        }}
+                        source={{
+                            uri: src
+                        }}
+                        onLoad={onLoad}
+                        onError={onError}
+                    />
+                )
+            }
+            {stateOverlay}
+        </View>
+    )
+}
 
 interface TagProps {
     children: string;
