@@ -47,7 +47,7 @@ function Search() {
         const result = await getSearch(s)
 
         if (result.length === 0) {
-            showToast('没有搜索到相关内容.')
+            showToast('没有搜索到相关内容')
         }
 
         setSearchComplate(true)
@@ -84,15 +84,18 @@ function Search() {
             } as never)
         }
         else {
-            showToast('数据访问错误, 请重试.')
+            showToast('数据访问错误, 请重试')
         }
 
         setLoading(false)
     }
 
     const onSubmit = () => {
-        if (keyword.length > 0) {
+        if (keyword.trim().length > 0) {
             getSearchResult(keyword)
+        }
+        else {
+            showToast('关键词不能为空')
         }
     }
 
@@ -151,6 +154,7 @@ function Search() {
                             padding: 10,
                             flexGrow: 1
                         }}
+                        returnKeyType="search"
                         placeholder="输入影视剧名称"
                         onChangeText={value => setKeyword(value)}
                         onSubmitEditing={onSubmit}
