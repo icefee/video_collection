@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { View, Image, TextInput, ScrollView, Text, TouchableOpacity, ToastAndroid, Dimensions } from 'react-native';
+import { View, Image, TextInput, ScrollView, Text, TouchableOpacity, ToastAndroid, Dimensions, Linking } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import LoadingIndicator from '../components/LoadingIndicator';
 import { apiUrl } from '../config';
@@ -9,7 +9,7 @@ import { jsonBase64, image as imageParser } from '../util/parser';
 async function getSearch(s: string): Promise<SearchVideo[]> {
 
     const result = await fetch(
-        apiUrl + '/video/search/api?s=' + encodeURIComponent(s)
+        apiUrl + '/video/search/proxy?s=' + encodeURIComponent(s)
     ).then(
         response => jsonBase64<SearchVideo[]>(response)
     )
@@ -229,9 +229,22 @@ function Search() {
                                                                 </View>
                                                                 <View style={{
                                                                     flexGrow: 1,
-                                                                    justifyContent: 'flex-end',
+                                                                    flexDirection: 'row',
+                                                                    justifyContent: 'space-between',
                                                                     alignItems: 'flex-end'
                                                                 }}>
+                                                                    <TouchableOpacity onPress={
+                                                                        () => {
+                                                                            Linking.openURL(
+                                                                                apiUrl + '/video/' + site.key + '/' + video.id
+                                                                            )
+                                                                        }
+                                                                    }>
+                                                                        <Text style={{
+                                                                            textDecorationLine: 'underline',
+                                                                            color: '#5517e3'
+                                                                        }}>网页播放</Text>
+                                                                    </TouchableOpacity>
                                                                     <Text>{video.last}</Text>
                                                                 </View>
                                                             </View>
