@@ -9,7 +9,7 @@ import { jsonBase64, image as imageParser } from '../util/parser';
 async function getSearch(s: string): Promise<SearchVideo[]> {
 
     const result = await fetch(
-        apiUrl + '/video/search/proxy?s=' + encodeURIComponent(s)
+        apiUrl + '/video/search/api?s=' + encodeURIComponent(s)
     ).then(
         response => jsonBase64<SearchVideo[]>(response)
     )
