@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { ScrollView, Pressable, View, Text, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../hook/theme';
-import { apiUrl } from '../config';
+import { staticDataUrl } from '../config';
 import LoadingIndicator from '../components/LoadingIndicator';
 
 async function getTVChannels() {
-    const url = apiUrl + '/iptv.json'
+    const url = staticDataUrl + '/iptv.json'
     const data: TVChannel[] = await fetch(url).then(
         response => response.json()
     )
