@@ -1,31 +1,27 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { View, Image, TextInput, ScrollView, Text, TouchableOpacity, ToastAndroid, Dimensions, Linking } from 'react-native';
+import { View, Image, TextInput, ScrollView, Text, TouchableOpacity, Button, ToastAndroid, Dimensions, Linking } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import LoadingIndicator from '../components/LoadingIndicator';
-import { apiUrl } from '../config';
+import { getSearchResult, getVideoDetail } from '../util/api';
 import { useTheme } from '../hook/theme';
-import { jsonBase64, image as imageParser } from '../util/parser';
+import { apiUrl, staticDataUrl } from '../config';
+import { toBase64, utf162utf8 } from '../util/parser';
 
 async function getSearch(s: string): Promise<SearchVideo[]> {
-
-    const result = await fetch(
-        apiUrl + '/video/search/api?s=' + encodeURIComponent(s)
-    ).then(
-        response => jsonBase64<SearchVideo[]>(response)
-    )
-    return result ?? [];
-
+    let prefer = false;
+    let wd = s;
+    if (s.startsWith('$')) {
+        prefer = true;
+        wd = s.slice(1)
+    }
+    return getSearchResult({
+        wd: encodeURIComponent(wd),
+        prefer
+    })
 }
 
-async function getVideo(site: string, id: number): Promise<VideoInfo | null> {
-
-    const result = await fetch(
-        apiUrl + `/video/api?api=${site}&id=${id}`
-    ).then(
-        response => jsonBase64<VideoInfo>(response)
-    )
-
-    return result;
+async function getVideo(api: string, id: number): Promise<VideoInfo | null> {
+    return getVideoDetail(api, String(id));
 }
 
 function Search() {
@@ -57,16 +53,11 @@ function Search() {
     }
 
     const getVideoList = async (video: VideoListItem, siteKey: string) => {
-
         setLoading(true)
-
         const result = await getVideo(siteKey, video.id)
-
         if (result) {
-
             const videoList = result.dataList[0]
             const urls = videoList.urls;
-
             const data = Object.assign({
                 title: result.name,
             }, urls.length > 1 ? {
@@ -86,7 +77,6 @@ function Search() {
         else {
             showToast('数据访问错误, 请重试')
         }
-
         setLoading(false)
     }
 
@@ -111,7 +101,13 @@ function Search() {
                 alignItems: 'center',
                 backgroundColor: backdropColor,
             }}>
-                {content}
+                <View style={{
+                    padding: 15,
+                    backgroundColor: 'rgba(0, 0, 0, .8)',
+                    borderRadius: 6
+                }}>
+                    {content}
+                </View>
             </View>
         )
     }
@@ -198,13 +194,13 @@ function Search() {
                                                             justifyContent: 'space-between'
                                                         }}>
                                                             <Poster
-                                                                width={100}
-                                                                height={150}
+                                                                width={120}
+                                                                height={180}
                                                                 api={site.key}
                                                                 id={video.id}
                                                             />
                                                             <View style={{
-                                                                width: Dimensions.get('window').width - 150
+                                                                width: Dimensions.get('window').width - 170
                                                             }}>
                                                                 <View style={{
                                                                     flexBasis: '100%'
@@ -228,24 +224,54 @@ function Search() {
                                                                     <Tag>{video.type}</Tag>
                                                                 </View>
                                                                 <View style={{
+                                                                    marginTop: 10
+                                                                }}>
+                                                                    <Text>{video.last}</Text>
+                                                                </View>
+                                                                <View style={{
                                                                     flexGrow: 1,
                                                                     flexDirection: 'row',
-                                                                    justifyContent: 'space-between',
                                                                     alignItems: 'flex-end'
                                                                 }}>
-                                                                    <TouchableOpacity onPress={
-                                                                        () => {
-                                                                            Linking.openURL(
-                                                                                apiUrl + '/video/' + site.key + '/' + video.id
-                                                                            )
+                                                                    <Button
+                                                                        title="网页播放"
+                                                                        color="#5517e3"
+                                                                        onPress={
+                                                                            () => {
+                                                                                Linking.openURL(
+                                                                                    apiUrl + '/video/' + site.key + '/' + video.id
+                                                                                )
+                                                                            }
                                                                         }
-                                                                    }>
-                                                                        <Text style={{
-                                                                            textDecorationLine: 'underline',
-                                                                            color: '#5517e3'
-                                                                        }}>网页播放</Text>
-                                                                    </TouchableOpacity>
-                                                                    <Text>{video.last}</Text>
+                                                                    />
+                                                                    <View style={{
+                                                                        width: 10
+                                                                    }} />
+                                                                    <Button
+                                                                        title="数据链接"
+                                                                        color="#55a753"
+                                                                        onPress={
+                                                                            async () => {
+                                                                                setLoading(true)
+                                                                                const result = await getVideo(site.key, video.id)
+                                                                                if (result) {
+                                                                                    const base64 = toBase64(
+                                                                                        utf162utf8(
+                                                                                            JSON.stringify({
+                                                                                                api: site.key,
+                                                                                                id: String(video.id),
+                                                                                                video: result
+                                                                                            })
+                                                                                        )
+                                                                                    )
+                                                                                    Linking.openURL(
+                                                                                        staticDataUrl + '/video?d=' + encodeURIComponent(base64)
+                                                                                    )
+                                                                                }
+                                                                                setLoading(false)
+                                                                            }
+                                                                        }
+                                                                    />
                                                                 </View>
                                                             </View>
                                                         </View>
@@ -287,13 +313,9 @@ function Poster({ width, height, api, id }: PosterProps) {
     const getPoster = async (api: string, id: number) => {
         setPending(true)
         try {
-
-            const poster = await fetch(
-                apiUrl + `/video/${api}/${id}/poster`
-            ).then(response => imageParser(response))
-
-            if (poster) {
-                setSrc(poster)
+            const videoDetail = await getVideoDetail(api, String(id))
+            if (videoDetail) {
+                setSrc(videoDetail.pic)
             }
             else {
                 throw new Error('')
@@ -383,14 +405,14 @@ interface TagProps {
 function Tag({ children }: TagProps) {
     return (
         <View style={{
-            padding: 3,
-            borderWidth: 1,
-            borderColor: '#5517e3',
-            borderRadius: 10,
+            paddingVertical: 5,
+            paddingHorizontal: 8,
+            backgroundColor: '#5517e3',
+            borderRadius: 15,
             alignSelf: 'flex-start'
         }}>
             <Text style={{
-                color: '#5517e3',
+                color: '#fff',
                 fontSize: 12
             }}>{children}</Text>
         </View>

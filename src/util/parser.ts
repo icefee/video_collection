@@ -1,4 +1,4 @@
-import base64 from 'react-native-base64'
+import { btoa, atob } from 'react-native-quick-base64';
 
 export async function jsonBase64<T extends any>(response: Response) {
     const text = await response.text()
@@ -6,7 +6,7 @@ export async function jsonBase64<T extends any>(response: Response) {
     if (!matchedBase64 && isNextResult(text)) {
         return null;
     }
-    return matchedBase64 ? JSON.parse(utf82utf16(base64.decode(matchedBase64[0]))) as T : null;
+    return matchedBase64 ? JSON.parse(utf82utf16(atob(matchedBase64[0]))) as T : null;
 }
 
 export async function image(response: Response) {
@@ -49,4 +49,28 @@ export function utf82utf16(source: string) {
         }
     }
     return out;
+}
+
+export function utf162utf8(source: string) {
+    var out, i, len, c;
+    out = "";
+    len = source.length;
+    for (i = 0; i < len; i++) {
+        c = source.charCodeAt(i);
+        if ((c >= 0x0001) && (c <= 0x007F)) {
+            out += source.charAt(i);
+        } else if (c > 0x07FF) {
+            out += String.fromCharCode(0xE0 | ((c >> 12) & 0x0F));
+            out += String.fromCharCode(0x80 | ((c >> 6) & 0x3F));
+            out += String.fromCharCode(0x80 | ((c >> 0) & 0x3F));
+        } else {
+            out += String.fromCharCode(0xC0 | ((c >> 6) & 0x1F));
+            out += String.fromCharCode(0x80 | ((c >> 0) & 0x3F));
+        }
+    }
+    return out;
+}
+
+export function toBase64(source: string): string {
+    return btoa(source);
 }
