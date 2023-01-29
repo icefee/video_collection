@@ -6,6 +6,7 @@ import { useTheme } from '../hook/theme';
 import Orientation from 'react-native-orientation';
 import { useWindowSize } from '../hook/screen';
 import LinearGradientView from '../components/LinearGradientView';
+import M3u8UrlParser from '../components/M3u8UrlParser';
 
 export const getM3u8Uri: (url_template: string, m3u8: M3u8Video) => string = (url_template, m3u8) => {
     if (typeof m3u8 === 'string') {
@@ -133,21 +134,30 @@ function Video() {
 
     return (
         <View style={{ flex: 1 }}>
-            <VideoPlayer
-                width={videoWidth}
-                height={videoHeight}
-                url={playingUrl}
-                fullscreen={isFullscreen}
-                onRequestFullscreen={() => {
-                    if (isFullscreen) {
-                        dismissFullscreen()
-                    }
-                    else {
-                        enterFullscreen()
-                    }
-                }}
-                onEnd={playNext}
-            />
+            <M3u8UrlParser style={{
+                width: videoWidth,
+                height: videoHeight
+            }} url={playingUrl}>
+                {
+                    (url) => (
+                        <VideoPlayer
+                            width={videoWidth}
+                            height={videoHeight}
+                            url={url}
+                            fullscreen={isFullscreen}
+                            onRequestFullscreen={() => {
+                                if (isFullscreen) {
+                                    dismissFullscreen()
+                                }
+                                else {
+                                    enterFullscreen()
+                                }
+                            }}
+                            onEnd={playNext}
+                        />
+                    )
+                }
+            </M3u8UrlParser>
             {
                 !isFullscreen && (
                     <View style={{ flex: 1, backgroundColor: paperColor }}>
