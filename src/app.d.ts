@@ -72,8 +72,3 @@ declare module 'react-native-orientation' {
     };
     export default _default;
 }
-
-declare interface VideoType {
-    tid: string;
-    tname: string;
-}

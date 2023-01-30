@@ -49,6 +49,11 @@ declare interface VideoListItem {
     type: string;
 }
 
+declare interface VideoType {
+    tid: string;
+    tname: string;
+}
+
 declare interface VideoInfo {
     name: string;
     note: string;
