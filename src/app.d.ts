@@ -11,7 +11,7 @@ declare module 'react-native-video' {
         playableDuration: number;
         seekableDuration: number;
     }
-    export type VideoInfo = {
+    export type VideoMeta = {
         duration: number;
     }
     export type SeekParams = {
@@ -28,7 +28,7 @@ declare module 'react-native-video' {
         resizeMode?: Exclude<ImageResizeMode, 'center' | 'repeat'> | 'none';
         onReadyForDisplay?: VoidFunction;
         onError?: (error: any) => void;
-        onLoad?: (info: VideoInfo) => void;
+        onLoad?: (info: VideoMeta) => void;
         onProgress?: (payload: ProcessParams) => void;
         onPlaybackStateChanged?: (payload: { isPlaying: boolean; }) => void;
         onSeek?: (payload: SeekParams) => void;

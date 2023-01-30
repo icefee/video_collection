@@ -3,15 +3,15 @@ import { Pressable, type PressableProps, type GestureResponderEvent, Dimensions 
 
 interface TouchableProps extends PressableProps {
     onTouchUpdate?: (rate: number) => void;
-    onDoubleTap?: () => void;
+    onDoubleTap?: VoidFunction;
 }
 
-function Touchable({ children, onTouchStart, onTouchUpdate, onDoubleTap, onPress, ...props }: TouchableProps) {
+function Touchable({ children, onTouchStart, onTouchUpdate, onDoubleTap, onPress, onTouchEnd, onTouchCancel, ...props }: TouchableProps) {
     const [touchOffset, setTouchOffset] = useState(0)
     const [firstTap, setFirstTap] = useState<number | null>(null)
     const [isTouching, setIsTouching] = useState(false)
     const releaseTouching = () => setIsTouching(false)
-    
+
     const handlePress = (event: GestureResponderEvent) => {
         if (!firstTap) {
             setFirstTap(+new Date())
@@ -19,7 +19,7 @@ function Touchable({ children, onTouchStart, onTouchUpdate, onDoubleTap, onPress
         }
         else {
             const now = Date.now();
-            if(now - firstTap < 400) {
+            if (now - firstTap < 400) {
                 onDoubleTap?.()
             }
             else {
@@ -30,24 +30,41 @@ function Touchable({ children, onTouchStart, onTouchUpdate, onDoubleTap, onPress
     }
 
     return (
-        <Pressable onTouchStart={
-            (event) => {
-                onTouchStart?.(event);
-                setTouchOffset(event.nativeEvent.locationX)
-            }
-        } onTouchMove={
-            (event) => {
-                const width = Dimensions.get('window').width;
-                const offset = event.nativeEvent.locationX - touchOffset;
-                if (Math.abs(offset) > 2) {
-                    setIsTouching(true)
+        <Pressable
+            onTouchStart={
+                (event) => {
+                    onTouchStart?.(event);
+                    setTouchOffset(event.nativeEvent.locationX)
                 }
-                if (isTouching) {
-                    onTouchUpdate?.(offset / width);
-                }
-                setTouchOffset(event.nativeEvent.locationX)
             }
-        } onPress={handlePress} onTouchEnd={releaseTouching} onTouchCancel={releaseTouching} { ...props }>{children}</Pressable>
+            onTouchMove={
+                (event) => {
+                    const width = Dimensions.get('window').width;
+                    const offset = event.nativeEvent.locationX - touchOffset;
+                    if (Math.abs(offset) > 2) {
+                        setIsTouching(true)
+                    }
+                    if (isTouching) {
+                        onTouchUpdate?.(offset / width);
+                    }
+                    setTouchOffset(event.nativeEvent.locationX)
+                }
+            }
+            onPress={handlePress}
+            onTouchEnd={
+                (event) => {
+                    releaseTouching()
+                    onTouchEnd?.(event);
+                }
+            }
+            onTouchCancel={
+                (event) => {
+                    releaseTouching()
+                    onTouchCancel?.(event);
+                }
+            }
+            {...props}
+        >{children}</Pressable>
     )
 }
 
