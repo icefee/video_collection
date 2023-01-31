@@ -7,6 +7,7 @@ interface ThemeColor {
     paperColor: string;
     borderColor: string;
     textColor: string;
+    subTextColor: string;
     headerColor: string;
     statusBarColor: string;
     backdropColor: string;
@@ -24,6 +25,7 @@ export function useTheme(): ThemeColor {
             paperColor: '#222',
             borderColor: '#444',
             textColor: '#fff',
+            subTextColor: '#aaa',
             headerColor: '#222',
             statusBarColor: '#222',
             backdropColor: 'rgba(0, 0, 0, .2)',
@@ -39,6 +41,7 @@ export function useTheme(): ThemeColor {
             paperColor: '#fff',
             borderColor: '#eee',
             textColor: '#000',
+            subTextColor: '#666',
             headerColor: '#fff',
             statusBarColor: '#999',
             backdropColor: 'rgba(255, 255, 255, .2)',

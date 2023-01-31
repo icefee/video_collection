@@ -85,14 +85,6 @@ type SearchQuery = {
     prefer?: boolean;
 }
 
-export interface SearchVideo {
-    key: string;
-    name: string;
-    rating: number;
-    data: VideoListItem[];
-    page: ResponsePagination;
-}
-
 export async function getSearchResult({ wd, prefer }: SearchQuery) {
     return new Promise<SearchVideo[]>(
         async (resolve) => {

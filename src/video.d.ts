@@ -28,6 +28,7 @@ declare interface TVChannel {
 declare interface SearchVideo {
     key: string;
     name: string;
+    rating: number;
     data: VideoListItem[];
     page: ResponsePagination;
 }

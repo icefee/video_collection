@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { View, Image, TextInput, ScrollView, Text, TouchableOpacity, Button, ToastAndroid, Dimensions, Linking } from 'react-native';
+import { View, Image, TextInput, ScrollView, SectionList, Text, TouchableOpacity, Button, ToastAndroid, Dimensions, Linking } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import LoadingIndicator from '../components/LoadingIndicator';
 import { getSearchResult, getVideoDetail } from '../util/api';
@@ -31,7 +31,7 @@ function Search() {
     const [loading, setLoading] = useState(false)
     const [searchComplate, setSearchComplate] = useState(false)
 
-    const { backgroundColor, textColor, paperColor, borderColor, backdropColor } = useTheme()
+    const { textColor, subTextColor, paperColor, borderColor, backdropColor } = useTheme()
     const navigation = useNavigation();
 
     const showToast = (msg: string) => ToastAndroid.showWithGravity(msg, ToastAndroid.SHORT, ToastAndroid.BOTTOM)
@@ -148,11 +148,13 @@ function Search() {
                         style={{
                             height: 40,
                             padding: 10,
-                            flexGrow: 1
+                            flexGrow: 1,
+                            color: textColor
                         }}
                         returnKeyType="search"
                         placeholder="输入影视剧名称"
                         onChangeText={value => setKeyword(value)}
+                        placeholderTextColor={subTextColor}
                         onSubmitEditing={onSubmit}
                         value={keyword}
                         autoFocus
@@ -164,132 +166,135 @@ function Search() {
                 paddingTop: 50,
                 flexGrow: 1
             }}>
-                <ScrollView style={{ backgroundColor }} contentInsetAdjustmentBehavior="automatic">
-                    {
-                        videoList.map(
-                            site => (
-                                <View key={site.key} style={{
-                                    padding: 10,
-                                    marginBottom: 5
+                <SectionList
+                    sections={videoList}
+                    keyExtractor={(item, index) => `${index}-${item.id}`}
+                    renderItem={({ item, section }) => (
+                        <TouchableOpacity style={{
+                            paddingBottom: 5,
+                            marginBottom: 5,
+                            borderBottomWidth: 1,
+                            borderBottomColor: borderColor
+                        }} onPress={
+                            () => getVideoList(item, section.key)
+                        }>
+                            <View style={{
+                                backgroundColor: paperColor,
+                                padding: 10,
+                                borderRadius: 6,
+                                flexDirection: 'row',
+                                justifyContent: 'space-between'
+                            }}>
+                                <Poster
+                                    width={120}
+                                    height={180}
+                                    api={section.key}
+                                    id={item.id}
+                                />
+                                <View style={{
+                                    width: Dimensions.get('window').width - 150
                                 }}>
                                     <View style={{
-                                        marginBottom: 5
+                                        flexBasis: '100%'
                                     }}>
-                                        <Text>{site.name}</Text>
+                                        <Text style={{
+                                            fontSize: 20,
+                                            fontWeight: 'bold',
+                                            color: textColor
+                                        }} numberOfLines={2} textBreakStrategy="simple">{item.name}</Text>
                                     </View>
-                                    <View>
+                                    <View style={{
+                                        marginVertical: 8
+                                    }}>
                                         {
-                                            site.data.map(
-                                                video => (
-                                                    <TouchableOpacity key={video.id} style={{
-                                                        marginBottom: 10
-                                                    }} onPress={
-                                                        () => getVideoList(video, site.key)
-                                                    }>
-                                                        <View style={{
-                                                            backgroundColor: paperColor,
-                                                            padding: 10,
-                                                            borderRadius: 6,
-                                                            flexDirection: 'row',
-                                                            justifyContent: 'space-between'
-                                                        }}>
-                                                            <Poster
-                                                                width={120}
-                                                                height={180}
-                                                                api={site.key}
-                                                                id={video.id}
-                                                            />
-                                                            <View style={{
-                                                                width: Dimensions.get('window').width - 170
-                                                            }}>
-                                                                <View style={{
-                                                                    flexBasis: '100%'
-                                                                }}>
-                                                                    <Text style={{
-                                                                        fontSize: 20,
-                                                                        fontWeight: 'bold',
-                                                                        color: textColor
-                                                                    }} numberOfLines={2} textBreakStrategy="simple">{video.name}</Text>
-                                                                </View>
-                                                                <View style={{
-                                                                    marginVertical: 8
-                                                                }}>
-                                                                    {
-                                                                        Boolean(video.note) && (
-                                                                            <Text>{video.note}</Text>
-                                                                        )
-                                                                    }
-                                                                </View>
-                                                                <View>
-                                                                    <Tag>{video.type}</Tag>
-                                                                </View>
-                                                                <View style={{
-                                                                    marginTop: 10
-                                                                }}>
-                                                                    <Text>{video.last}</Text>
-                                                                </View>
-                                                                <View style={{
-                                                                    flexGrow: 1,
-                                                                    flexDirection: 'row',
-                                                                    alignItems: 'flex-end'
-                                                                }}>
-                                                                    <Button
-                                                                        title="网页播放"
-                                                                        color="#5517e3"
-                                                                        onPress={
-                                                                            () => {
-                                                                                Linking.openURL(
-                                                                                    apiUrl + '/video/' + site.key + '/' + video.id
-                                                                                )
-                                                                            }
-                                                                        }
-                                                                    />
-                                                                    <View style={{
-                                                                        width: 10
-                                                                    }} />
-                                                                    <Button
-                                                                        title="数据链接"
-                                                                        color="#55a753"
-                                                                        onPress={
-                                                                            async () => {
-                                                                                setLoading(true)
-                                                                                const result = await getVideo(site.key, video.id)
-                                                                                if (result) {
-                                                                                    const base64 = toBase64(
-                                                                                        utf162utf8(
-                                                                                            JSON.stringify({
-                                                                                                api: site.key,
-                                                                                                id: String(video.id),
-                                                                                                video: result
-                                                                                            })
-                                                                                        )
-                                                                                    )
-                                                                                    Linking.openURL(
-                                                                                        staticDataUrl + '/video?d=' + encodeURIComponent(base64)
-                                                                                    )
-                                                                                }
-                                                                                setLoading(false)
-                                                                            }
-                                                                        }
-                                                                    />
-                                                                </View>
-                                                            </View>
-                                                        </View>
-                                                    </TouchableOpacity>
-                                                )
+                                            Boolean(item.note) && (
+                                                <Text style={{
+                                                    color: textColor
+                                                }}>{item.note}</Text>
                                             )
                                         }
                                     </View>
+                                    <View>
+                                        <Tag>{item.type}</Tag>
+                                    </View>
+                                    <View style={{
+                                        marginTop: 10
+                                    }}>
+                                        <Text style={{
+                                            color: subTextColor
+                                        }}>{item.last}</Text>
+                                    </View>
+                                    <View style={{
+                                        flexGrow: 1,
+                                        flexDirection: 'row',
+                                        alignItems: 'flex-end'
+                                    }}>
+                                        <Button
+                                            title="网页播放"
+                                            color="#5517e3"
+                                            onPress={
+                                                () => {
+                                                    Linking.openURL(
+                                                        apiUrl + '/video/' + section.key + '/' + item.id
+                                                    )
+                                                }
+                                            }
+                                        />
+                                        <View style={{
+                                            width: 10
+                                        }} />
+                                        <Button
+                                            title="数据链接"
+                                            color="#55a753"
+                                            onPress={
+                                                async () => {
+                                                    setLoading(true)
+                                                    const result = await getVideo(section.key, item.id)
+                                                    if (result) {
+                                                        const base64 = toBase64(
+                                                            utf162utf8(
+                                                                JSON.stringify({
+                                                                    api: section.key,
+                                                                    id: item.id,
+                                                                    video: result
+                                                                })
+                                                            )
+                                                        )
+                                                        Linking.openURL(
+                                                            staticDataUrl + '/video?d=' + encodeURIComponent(base64)
+                                                        )
+                                                    }
+                                                    setLoading(false)
+                                                }
+                                            }
+                                        />
+                                    </View>
                                 </View>
-                            )
-                        )
-                    }
-                </ScrollView>
+                            </View>
+                        </TouchableOpacity>
+                    )}
+                    renderSectionHeader={({ section: { name, rating } }) => (
+                        <View style={{
+                            paddingHorizontal: 8,
+                            paddingTop: 24,
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                        }}>
+                            <Text style={{
+                                color: textColor
+                            }}>{name}</Text>
+                            <RatingScore score={rating} />
+                        </View>
+                    )}
+                />
                 {
                     loading && withOverlay(<LoadingIndicator />)
                 }
                 {
-                    searchComplate && videoList.length === 0 && withOverlay(<Text>找不到相关内容</Text>)
+                    searchComplate && videoList.length === 0 && withOverlay(<Text style={{
+                        color: textColor
+                    }}>找不到相关内容</Text>)
                 }
             </View>
         </View>
@@ -415,6 +420,43 @@ function Tag({ children }: TagProps) {
                 color: '#fff',
                 fontSize: 12
             }}>{children}</Text>
+        </View>
+    )
+}
+
+
+interface RatingScoreProps {
+    score: number;
+}
+
+function RatingScore({ score }: RatingScoreProps) {
+
+    const { textColor } = useTheme()
+    const rate = score / 5;
+
+    return (
+        <View style={{
+            flexDirection: 'row',
+            alignItems: 'center'
+        }}>
+            <View style={{
+                width: 30,
+                height: 5,
+                backgroundColor: '#999'
+            }}>
+                <View style={{
+                    width: rate * 100 + '%',
+                    height: '100%',
+                    backgroundColor: `hsl(${rate * 120}, 75%, 50%)`
+                }} />
+            </View>
+            <View style={{
+                marginLeft: 5
+            }}>
+                <Text style={{
+                    color: textColor
+                }}>{score}</Text>
+            </View>
         </View>
     )
 }
