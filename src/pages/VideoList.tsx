@@ -8,8 +8,7 @@ import { staticDataUrl } from '../config';
 
 const shields = [
     '韩国电影',
-    '纪录片',
-    '私密'
+    '纪录片'
 ];
 
 async function getVideos() {
