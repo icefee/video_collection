@@ -48,6 +48,14 @@
         "group": "normal"
     },
     {
+        "key": "ff",
+        "name": "飞凡资源",
+        "rating": 4,
+        "api": "http://cj.ffzyapi.com/api.php/provide/vod/at/xml",
+        "jiexiUrl": "",
+        "group": "normal"
+    },
+    {
         "key": "6",
         "name": "速更资源",
         "rating": 4,
@@ -308,6 +316,30 @@
         "name": "奥斯卡资源",
         "rating": 4,
         "api": "https://aosikazy.com/api.php/provide/vod/at/xml",
+        "jiexiUrl": "",
+        "group": "18+"
+    },
+    {
+        "key": "dd",
+        "name": "大地资源",
+        "rating": 4,
+        "api": "https://dadiapi.com/api.php",
+        "jiexiUrl": "",
+        "group": "18+"
+    },
+    {
+        "key": "ddk",
+        "name": "大地资源(备用)",
+        "rating": 4,
+        "api": "http://ddkbo.com/api.php",
+        "jiexiUrl": "",
+        "group": "18+"
+    },
+    {
+        "key": "y",
+        "name": "伊人资源",
+        "rating": 4,
+        "api": "https://api.yirenziyuan.com/api.php/provide/vod/at/xml",
         "jiexiUrl": "",
         "group": "18+"
     },
