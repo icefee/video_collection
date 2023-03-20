@@ -96,6 +96,14 @@
         "group": "normal"
     },
     {
+        "key": "h",
+        "name": "68资源",
+        "rating": 4,
+        "api": "https://caiji.68zyapi.com/api.php/provide/vod/at/xml",
+        "jiexiUrl": "",
+        "group": "normal"
+    },
+    {
         "key": "c",
         "name": "量子资源",
         "rating": 3,
@@ -316,6 +324,22 @@
         "name": "奥斯卡资源",
         "rating": 4,
         "api": "https://aosikazy.com/api.php/provide/vod/at/xml",
+        "jiexiUrl": "",
+        "group": "18+"
+    },
+    {
+        "key": "g1",
+        "name": "草榴资源",
+        "rating": 4,
+        "api": "https://www.caoliuzy.com/api.php/provide/vod/at/xml",
+        "jiexiUrl": "",
+        "group": "18+"
+    },
+    {
+        "key": "k4",
+        "name": "开云资源",
+        "rating": 4,
+        "api": "https://kaiyunzy4.com/inc/api.php",
         "jiexiUrl": "",
         "group": "18+"
     },
