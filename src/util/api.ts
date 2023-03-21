@@ -3,6 +3,40 @@ import { XML } from './xml';
 import { M3u8 } from './RegExp';
 import sources from '../data/video/source.json';
 
+export type VideoItem = {
+    label: string;
+    url: string;
+}
+
+export type VideoSource = {
+    name: string;
+    urls: VideoItem[]
+}
+
+export interface VideoInfo {
+    name: string;
+    note: string;
+    pic: string;
+    type: string;
+    year: string;
+    actor?: string;
+    area?: string;
+    des: string;
+    director?: string;
+    lang: string;
+    last: string;
+    state: number;
+    tid: number;
+    dataList: VideoSource[]
+}
+
+type XmlDataNode<T> = T | T[];
+
+type SearchQuery = {
+    wd: string;
+    prefer?: boolean;
+}
+
 function checkVideoValid(video: VideoListItem) {
     return video.name.indexOf('未授权') === -1 && !video.type.match(
         new RegExp('(' + SearchConfig.blackTypeList.join('|') + ')')
@@ -36,7 +70,7 @@ export async function getSearch(api: string, wd: string, pg = 1, t?: number) {
     }
     try {
         const xml = await requestApi(apiUrl).then(response => response.text())
-        const { rss: { list: { video, ...xmlPage }, class: { ty } } } = XML.parse(xml) as XmlResponse<VideoListItem | VideoListItem[]>;
+        const { rss: { list: { video, ...xmlPage }, class: { ty } } } = XML.parse(xml) as XmlResponse<XmlDataNode<VideoListItem>>;
         const types = ty.map<VideoType>(
             t => ({
                 tid: t['@_id'],
@@ -51,20 +85,32 @@ export async function getSearch(api: string, wd: string, pg = 1, t?: number) {
         }
         if (video) {
             if (Array.isArray(video)) {
-                if (video.some(item => !checkVideoValid(item))) {
+                const revisedVideoList = video.map(
+                    ({ name, ...rest }) => ({
+                        name: String(name),
+                        ...rest
+                    })
+                )
+                if (revisedVideoList.some(item => !checkVideoValid(item))) {
                     return null
                 }
                 return {
                     page,
-                    video,
+                    video: revisedVideoList,
                     types
                 }
             }
-            else if (checkVideoValid(video)) {
-                return {
-                    page,
-                    video: [video],
-                    types
+            else {
+                const revisedVideo = {
+                    ...video,
+                    name: String(video.name)
+                };
+                if (checkVideoValid(revisedVideo)) {
+                    return {
+                        page,
+                        video: [revisedVideo],
+                        types
+                    }
                 }
             }
         }
@@ -78,11 +124,6 @@ export async function getSearch(api: string, wd: string, pg = 1, t?: number) {
         console.warn(`request ${api} failed.`)
     }
     return null
-}
-
-type SearchQuery = {
-    wd: string;
-    prefer?: boolean;
 }
 
 export async function getSearchResult({ wd, prefer }: SearchQuery) {
@@ -105,20 +146,6 @@ export async function getSearchResult({ wd, prefer }: SearchQuery) {
                 }
                 return !include;
             });
-
-            /*
-            const interval = setInterval(() => {
-                const timeCost = Date.now() - startTime;
-                console.log(`💚 time const = ${timeCost}`)
-                if (timeCost > timeoutDuration) {
-                    resolve(result)
-                    isResolved = true;
-                    clearInterval(interval)
-                }
-            }, checkIntervalDuration);
-            */
-
-            // const controller = new AbortController()
 
             const timeout = setTimeout(() => {
                 //isTimeout = true;
@@ -186,56 +213,7 @@ export async function getSearchResult({ wd, prefer }: SearchQuery) {
             }
         }
     )
-    /*
-    const searchResult = await Promise.all(
-        sources.map(
-            async ({ key, name, api }) => {
-                let data: any;
-                try {
-                    data = await getSearch(api, wd)
-                }
-                catch (e) {
-                    data = null;
-                }
-                return {
-                    key,
-                    name,
-                    data
-                }
-            }
-        )
-    )
-    */
 }
-
-export type VideoItem = {
-    label: string;
-    url: string;
-}
-
-export type VideoSource = {
-    name: string;
-    urls: VideoItem[]
-}
-
-export interface VideoInfo {
-    name: string;
-    note: string;
-    pic: string;
-    type: string;
-    year: string;
-    actor?: string;
-    area?: string;
-    des: string;
-    director?: string;
-    lang: string;
-    last: string;
-    state: number;
-    tid: number;
-    dataList: VideoSource[]
-}
-
-type XmlDataNode<T> = T | T[];
 
 export async function getVideoDetail(api: string, id: string) {
     const apiUrl = sources.find(
