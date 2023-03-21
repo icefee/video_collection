@@ -96,6 +96,14 @@
         "group": "normal"
     },
     {
+        "key": "s",
+        "name": "速播资源",
+        "rating": 4,
+        "api": "https://subocaiji.com/api.php/provide/vod/at/xml",
+        "jiexiUrl": "",
+        "group": "normal"
+    },
+    {
         "key": "h",
         "name": "68资源",
         "rating": 4,
