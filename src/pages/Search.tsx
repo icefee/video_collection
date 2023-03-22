@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { View, Image, TextInput, ScrollView, SectionList, Text, TouchableOpacity, Button, ToastAndroid, Dimensions, Linking } from 'react-native';
+import { View, Image, TextInput, SectionList, Text, TouchableOpacity, Button, ToastAndroid, Dimensions, Linking } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import LoadingIndicator from '../components/LoadingIndicator';
 import { getSearchResult, getVideoDetail } from '../util/api';
@@ -128,11 +128,13 @@ function Search() {
                 backgroundColor: paperColor
             }}>
                 <View style={{
+                    position: 'relative',
                     flexDirection: 'row',
                     alignItems: 'center',
                     borderWidth: 1,
                     borderColor,
-                    borderRadius: 5
+                    borderRadius: 5,
+                    paddingRight: 25
                 }}>
                     <View style={{
                         padding: 8,
@@ -159,6 +161,24 @@ function Search() {
                         value={keyword}
                         autoFocus
                     />
+                    {
+                        keyword !== '' && (
+                            <TouchableOpacity style={{
+                                position: 'absolute',
+                                top: 5,
+                                right: 5,
+                                padding: 5
+                            }} onPress={
+                                () => setKeyword('')
+                            }>
+                                <Image style={{
+                                    resizeMode: 'center',
+                                    width: 20,
+                                    height: 20
+                                }} source={require('../assets/clear.png')} />
+                            </TouchableOpacity>
+                        )
+                    }
                 </View>
             </View>
             <View style={{
