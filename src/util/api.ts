@@ -1,34 +1,6 @@
 import { Search as SearchConfig } from './config';
 import { XML } from './xml';
 import { M3u8 } from './RegExp';
-import sources from '../data/video/source.json';
-
-export type VideoItem = {
-    label: string;
-    url: string;
-}
-
-export type VideoSource = {
-    name: string;
-    urls: VideoItem[]
-}
-
-export interface VideoInfo {
-    name: string;
-    note: string;
-    pic: string;
-    type: string;
-    year: string;
-    actor?: string;
-    area?: string;
-    des: string;
-    director?: string;
-    lang: string;
-    last: string;
-    state: number;
-    tid: number;
-    dataList: VideoSource[]
-}
 
 type XmlDataNode<T> = T | T[];
 
@@ -126,7 +98,7 @@ export async function getSearch(api: string, wd: string, pg = 1, t?: number) {
     return null
 }
 
-export async function getSearchResult({ wd, prefer }: SearchQuery) {
+export async function getSearchResult(sources: ApiSource[], { wd, prefer }: SearchQuery) {
     return new Promise<SearchVideo[]>(
         async (resolve) => {
             const result: SearchVideo[] = [];
@@ -215,7 +187,7 @@ export async function getSearchResult({ wd, prefer }: SearchQuery) {
     )
 }
 
-export async function getVideoDetail(api: string, id: string) {
+export async function getVideoDetail(sources: ApiSource[], api: string, id: number) {
     const apiUrl = sources.find(
         ({ key }) => key === api
     )

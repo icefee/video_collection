@@ -6,7 +6,7 @@ import { useTheme } from '../hook/theme';
 import Orientation from 'react-native-orientation';
 import { useWindowSize } from '../hook/screen';
 import LinearGradientView from '../components/LinearGradientView';
-import M3u8UrlParser from '../components/M3u8UrlParser';
+import VideoUrlParser from '../components/VideoUrlParser';
 
 export const getM3u8Uri: (url_template: string, m3u8: M3u8Video) => string = (url_template, m3u8) => {
     if (typeof m3u8 === 'string') {
@@ -134,7 +134,7 @@ function Video() {
 
     return (
         <View style={{ flex: 1 }}>
-            <M3u8UrlParser style={{
+            <VideoUrlParser style={{
                 width: videoWidth,
                 height: videoHeight
             }} url={playingUrl}>
@@ -157,7 +157,7 @@ function Video() {
                         />
                     )
                 }
-            </M3u8UrlParser>
+            </VideoUrlParser>
             {
                 !isFullscreen && (
                     <View style={{ flex: 1, backgroundColor: paperColor }}>

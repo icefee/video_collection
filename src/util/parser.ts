@@ -1,14 +1,3 @@
-import { btoa, atob } from 'react-native-quick-base64';
-
-export async function jsonBase64<T extends any>(response: Response) {
-    const text = await response.text()
-    const matchedBase64 = text.match(/[a-zA-Z\d\/\+\=]{100,}/g)
-    if (!matchedBase64 && isNextResult(text)) {
-        return null;
-    }
-    return matchedBase64 ? JSON.parse(utf82utf16(atob(matchedBase64[0]))) as T : null;
-}
-
 export async function image(response: Response) {
     const text = await response.text()
     const matchedImage = text.match(/https?:\/\/.+?\.((jpe?|pn)g|webp)/g)
@@ -16,11 +5,6 @@ export async function image(response: Response) {
         return matchedImage[0]
     }
     return null;
-}
-
-function isNextResult(html: string) {
-    const nextScriptMeta = /<script id=\"__NEXT_DATA__\" type=\"application\/json\">/
-    return nextScriptMeta.test(html);
 }
 
 export function utf82utf16(source: string) {
@@ -69,8 +53,4 @@ export function utf162utf8(source: string) {
         }
     }
     return out;
-}
-
-export function toBase64(source: string): string {
-    return btoa(source);
 }

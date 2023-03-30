@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../hook/theme';
 import LoadingIndicator from '../components/LoadingIndicator';
 import ListHeader from '../components/ListHeader';
-import { staticDataUrl } from '../config';
+import { assetUrl } from '../config';
 
 const shields = [
     '韩国电影',
@@ -12,15 +12,15 @@ const shields = [
 ];
 
 async function getVideos() {
-    const url = staticDataUrl + '/videos.json'
-    const response = await fetch(url)
-    const json: { videos: Section[] } = await response.json()
-    // const json = html.match(
-    //     new RegExp('(?<=<script id="__NEXT_DATA__" type="application/json">).+?(?=</script>)', 'g')
-    // )
-    return json.videos.filter(
+    const url = assetUrl + '/videos.json'
+    const { videos } = await fetch(url).then<{
+        videos: Section[];
+    }>(
+        response => response.json()
+    )
+    return videos.filter(
         ({ section }) => !shields.includes(section)
-    );
+    )
 }
 
 function VideoList() {

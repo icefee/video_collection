@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { View, Text, Button, StyleProp, ViewStyle } from 'react-native';
 import LoadingIndicator from './LoadingIndicator';
-import { M3u8 } from '../util/RegExp';
+import { Video } from '../util/RegExp';
 
 type M3u8UrlParserProps = {
     url: string;
@@ -9,25 +9,43 @@ type M3u8UrlParserProps = {
     style?: StyleProp<ViewStyle>;
 }
 
-const parseUrl = async (url: string) => {
-    const html = await fetch(url).then(
-        response => response.text()
-    )
-    const matchedUrls = html.match(M3u8.match);
-    if (matchedUrls) {
-        return matchedUrls[0];
+async function parseVideoUrl(url: string) {
+    try {
+        const html = await fetch(url).then(
+            response => response.text()
+        );
+        const matchedUrls = html.match(Video.match);
+        if (matchedUrls) {
+            const parsedUrl = matchedUrls[0];
+            if (parsedUrl.startsWith('http')) {
+                return parsedUrl;
+            }
+            const uri = new URL(url);
+            if (parsedUrl.startsWith('/')) {
+                return uri.origin + parsedUrl;
+            }
+            const paths = uri.pathname.split('/');
+            paths.pop();
+            return uri.origin + paths.join('/') + '/' + parsedUrl;
+        }
+        else {
+            throw new Error('😥 not matched.')
+        }
     }
-    return null;
+    catch (err) {
+        console.log('💔 req failed')
+        return null;
+    }
 }
 
 function M3u8UrlParser({ url, children, style }: M3u8UrlParserProps) {
 
     const [m3u8Url, setM3u8Url] = useState<string | null>()
     const [error, setError] = useState(false)
-    const isM3u8 = useMemo(() => M3u8.isM3u8Url(url), [url])
+    const isM3u8 = useMemo(() => Video.isVideoUrl(url), [url])
 
     const _parseUrl = async () => {
-        const m3u8Url = await parseUrl(url)
+        const m3u8Url = await parseVideoUrl(url)
         if (m3u8Url) {
             if (m3u8Url.startsWith('http')) {
                 setM3u8Url(m3u8Url)

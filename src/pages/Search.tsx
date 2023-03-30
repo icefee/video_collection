@@ -1,30 +1,14 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { View, Image, TextInput, SectionList, Text, TouchableOpacity, Button, ToastAndroid, Dimensions, Linking } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import LoadingIndicator from '../components/LoadingIndicator';
 import { getSearchResult, getVideoDetail } from '../util/api';
 import { useTheme } from '../hook/theme';
-import { apiUrl, staticDataUrl } from '../config';
-import { toBase64, utf162utf8 } from '../util/parser';
-
-async function getSearch(s: string): Promise<SearchVideo[]> {
-    let prefer = false;
-    let wd = s;
-    if (s.startsWith('$')) {
-        prefer = true;
-        wd = s.slice(1)
-    }
-    return getSearchResult({
-        wd: encodeURIComponent(wd),
-        prefer
-    })
-}
-
-async function getVideo(api: string, id: number): Promise<VideoInfo | null> {
-    return getVideoDetail(api, String(id));
-}
+import { apiUrl, assetUrl } from '../config';
 
 function Search() {
+
+    const apiSource = useRef<ApiSource[]>()
 
     const [keyword, setKeyword] = useState('')
     const [videoList, setVideoList] = useState<SearchVideo[]>([])
@@ -34,55 +18,99 @@ function Search() {
     const { textColor, subTextColor, paperColor, borderColor, backdropColor } = useTheme()
     const navigation = useNavigation();
 
+    const inputFieldRef = useRef<TextInput | null>(null)
+
     const showToast = (msg: string) => ToastAndroid.showWithGravity(msg, ToastAndroid.SHORT, ToastAndroid.BOTTOM)
 
-    const getSearchResult = async (s: string) => {
+    const fetchApiSource = async () => {
+        try {
+            const { code, data, msg } = await fetch(`${apiUrl}/api/video/source`).then<ApiJsonType<ApiSource[]>>(
+                response => response.json()
+            )
+            if (code === 0) {
+                return data;
+            }
+            else {
+                throw new Error(msg)
+            }
+        }
+        catch (err) {
+            return null;
+        }
+    }
+
+    const getApiSource = async () => {
+        if (!apiSource.current) {
+            const apiSources = await fetchApiSource();
+            if (apiSources) {
+                apiSource.current = apiSources
+            }
+            else {
+                showToast('数据源获取失败')
+            }
+        }
+        return apiSource.current;
+    }
+
+    const getSearch = async (s: string) => {
 
         setLoading(true)
-
-        const result = await getSearch(s)
-
-        if (result.length === 0) {
-            showToast('没有搜索到相关内容')
+        const sources = await getApiSource()
+        if (sources) {
+            let prefer = false;
+            let wd = s;
+            if (s.startsWith('$')) {
+                prefer = true;
+                wd = s.slice(1)
+            }
+            const result = await getSearchResult(sources, {
+                wd: encodeURIComponent(wd),
+                prefer
+            })
+            if (result.length === 0) {
+                showToast('没有搜索到相关内容')
+            }
+            setSearchComplate(true)
+            setVideoList(result)
         }
-
-        setSearchComplate(true)
-        setVideoList(result)
         setLoading(false)
 
     }
 
     const getVideoList = async (video: VideoListItem, siteKey: string) => {
         setLoading(true)
-        const result = await getVideo(siteKey, video.id)
-        if (result) {
-            const videoList = result.dataList[0]
-            const urls = videoList.urls;
-            const data = Object.assign({
-                title: result.name,
-            }, urls.length > 1 ? {
-                episodes: urls.length,
-                url_template: '{0}',
-                m3u8_list: urls.map(
-                    ({ url }) => [url]
-                )
-            } : {
-                m3u8_url: urls[0].url
-            })
-            navigation.navigate({
-                name: 'video_player',
-                params: data
-            } as never)
-        }
-        else {
-            showToast('数据访问错误, 请重试')
+        const sources = await getApiSource()
+        if (sources) {
+            const result = await getVideoDetail(sources, siteKey, video.id)
+            if (result) {
+                const videoList = result.dataList[0]
+                const urls = videoList.urls;
+                const data = Object.assign({
+                    title: result.name,
+                }, urls.length > 1 ? {
+                    episodes: urls.length,
+                    url_template: '{0}',
+                    m3u8_list: urls.map(
+                        ({ url }) => [url]
+                    )
+                } : {
+                    m3u8_url: urls[0].url
+                })
+                navigation.navigate({
+                    name: 'video_player',
+                    params: data
+                } as never)
+            }
+            else {
+                showToast('数据访问错误, 请重试')
+            }
         }
         setLoading(false)
     }
 
     const onSubmit = () => {
         if (keyword.trim().length > 0) {
-            getSearchResult(keyword)
+            getSearch(keyword)
         }
         else {
             showToast('关键词不能为空')
@@ -153,6 +181,7 @@ function Search() {
                             flexGrow: 1,
                             color: textColor
                         }}
+                        ref={inputFieldRef}
                         returnKeyType="search"
                         placeholder="输入影视剧名称"
                         onChangeText={value => setKeyword(value)}
@@ -169,7 +198,10 @@ function Search() {
                                 right: 5,
                                 padding: 5
                             }} onPress={
-                                () => setKeyword('')
+                                () => {
+                                    setKeyword('');
+                                    inputFieldRef.current?.focus();
+                                }
                             }>
                                 <Image style={{
                                     resizeMode: 'center',
@@ -255,36 +287,8 @@ function Search() {
                                             onPress={
                                                 () => {
                                                     Linking.openURL(
-                                                        apiUrl + '/video/' + section.key + '/' + item.id
+                                                        assetUrl + '/video?api=' + section.key + '&id=' + item.id
                                                     )
-                                                }
-                                            }
-                                        />
-                                        <View style={{
-                                            width: 10
-                                        }} />
-                                        <Button
-                                            title="数据链接"
-                                            color="#55a753"
-                                            onPress={
-                                                async () => {
-                                                    setLoading(true)
-                                                    const result = await getVideo(section.key, item.id)
-                                                    if (result) {
-                                                        const base64 = toBase64(
-                                                            utf162utf8(
-                                                                JSON.stringify({
-                                                                    api: section.key,
-                                                                    id: item.id,
-                                                                    video: result
-                                                                })
-                                                            )
-                                                        )
-                                                        Linking.openURL(
-                                                            staticDataUrl + '/video?d=' + encodeURIComponent(base64)
-                                                        )
-                                                    }
-                                                    setLoading(false)
                                                 }
                                             }
                                         />
@@ -331,32 +335,8 @@ interface PosterProps {
 function Poster({ width, height, api, id }: PosterProps) {
 
     const { backgroundColor, backdropColor } = useTheme()
-    const [src, setSrc] = useState<string | null>(null)
     const [pending, setPending] = useState(false)
     const [error, setError] = useState(false)
-
-    const getPoster = async (api: string, id: number) => {
-        setPending(true)
-        try {
-            const videoDetail = await getVideoDetail(api, String(id))
-            if (videoDetail) {
-                setSrc(videoDetail.pic)
-            }
-            else {
-                throw new Error('')
-            }
-        }
-        catch (error) {
-            setError(true)
-        }
-
-        setPending(false)
-
-    }
-
-    useEffect(() => {
-        getPoster(api, id)
-    }, [api, id])
 
     const onLoad = () => setPending(false)
     const onError = () => {
@@ -395,6 +375,10 @@ function Poster({ width, height, api, id }: PosterProps) {
         return null;
     }, [pending, error])
 
+    useEffect(() => {
+        setPending(true)
+    }, [api, id])
+
     return (
         <View style={{
             position: 'relative',
@@ -402,22 +386,18 @@ function Poster({ width, height, api, id }: PosterProps) {
             height,
             backgroundColor
         }}>
-            {
-                src && (
-                    <Image
-                        style={{
-                            width,
-                            height,
-                            resizeMode: 'cover'
-                        }}
-                        source={{
-                            uri: src
-                        }}
-                        onLoad={onLoad}
-                        onError={onError}
-                    />
-                )
-            }
+            <Image
+                style={{
+                    width,
+                    height,
+                    resizeMode: 'cover'
+                }}
+                source={{
+                    uri: `${apiUrl}/api/video/${api}/${id}?type=poster`
+                }}
+                onLoad={onLoad}
+                onError={onError}
+            />
             {stateOverlay}
         </View>
     )

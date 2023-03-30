@@ -55,6 +55,16 @@ declare interface VideoType {
     tname: string;
 }
 
+declare interface VideoItem {
+    label: string;
+    url: string;
+}
+
+declare interface VideoSource {
+    name: string;
+    urls: VideoItem[];
+}
+
 declare interface VideoInfo {
     name: string;
     note: string;
@@ -72,12 +82,26 @@ declare interface VideoInfo {
     dataList: VideoSource[];
 }
 
-declare interface VideoSource {
+declare interface ApiSource {
+    key: string;
     name: string;
-    urls: VideoItem[];
+    rating: number;
+    api: string;
+    needDecode?: boolean;
+    jiexiUrl: string;
+    group: 'normal' | '18+';
 }
 
-declare interface VideoItem {
-    label: string;
-    url: string;
+declare interface ApiJsonTypeSuccess<T = unknown> {
+    code: 0;
+    data: T;
+    msg: string;
 }
+
+declare interface ApiJsonTypeFail {
+    code: -1;
+    data: null;
+    msg: string;
+}
+
+declare type ApiJsonType<T> = ApiJsonTypeSuccess<T> | ApiJsonTypeFail;
