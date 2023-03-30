@@ -240,8 +240,7 @@ function Search() {
                                 <Poster
                                     width={120}
                                     height={180}
-                                    api={section.key}
-                                    id={item.id}
+                                    src={`${apiUrl}/api/video/${section.key}/${item.id}?type=poster`}
                                 />
                                 <View style={{
                                     width: Dimensions.get('window').width - 150
@@ -326,13 +325,12 @@ function Search() {
 }
 
 interface PosterProps {
+    src: string;
     width: number | string;
     height: number | string;
-    api: string;
-    id: number;
 }
 
-function Poster({ width, height, api, id }: PosterProps) {
+function Poster({ src, width, height }: PosterProps) {
 
     const { backgroundColor, backdropColor } = useTheme()
     const [pending, setPending] = useState(false)
@@ -377,7 +375,7 @@ function Poster({ width, height, api, id }: PosterProps) {
 
     useEffect(() => {
         setPending(true)
-    }, [api, id])
+    }, [src])
 
     return (
         <View style={{
@@ -393,7 +391,7 @@ function Poster({ width, height, api, id }: PosterProps) {
                     resizeMode: 'cover'
                 }}
                 source={{
-                    uri: `${apiUrl}/api/video/${api}/${id}?type=poster`
+                    uri: src
                 }}
                 onLoad={onLoad}
                 onError={onError}
