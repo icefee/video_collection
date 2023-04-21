@@ -4,9 +4,11 @@ import {
   StatusBar,
   View,
   Image,
-  ImageSourcePropType
+  TouchableOpacity,
+  ImageSourcePropType,
+  Text
 } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -42,6 +44,16 @@ const App = () => {
   );
 };
 
+const assets = {
+  video: require('./assets/video.png'),
+  video_active: require('./assets/video_active.png'),
+  tv: require('./assets/tv.png'),
+  tv_active: require('./assets/tv_active.png'),
+  search: require('./assets/search.png'),
+  search_active: require('./assets/search_active.png'),
+  api: require('./assets/api.png')
+} as Record<string, any>
+
 function useStackOptions() {
   const { headerColor, textColor, statusBarColor } = useTheme();
 
@@ -58,6 +70,39 @@ function useStackOptions() {
     // headerBackImageSource: backImageAsset
   }
   return commonOptions;
+}
+
+function SearchHeaderRight() {
+
+  const navigation = useNavigation()
+
+  return (
+    <TouchableOpacity style={{
+      marginRight: 10
+    }} onPress={
+      () => navigation.navigate({
+        name: 'api_source'
+      } as never)
+    }>
+      <Image style={{
+        resizeMode: 'center',
+        width: 28,
+        height: 28
+      }} source={
+        assets.api as ImageSourcePropType
+      } />
+    </TouchableOpacity>
+  )
+}
+
+function ApiSource() {
+  return (
+    <View style={{
+      height: '100%'
+    }}>
+      <Text>api source config</Text>
+    </View>
+  )
 }
 
 function TabView() {
@@ -83,20 +128,15 @@ function TabView() {
       })
     }>
       <Tab.Screen name="video" component={VideoList} options={{ headerTitle: '影视剧', tabBarLabel: '影视剧' }} />
-      <Tab.Screen name="search" component={Search} options={{ headerTitle: '搜索', tabBarLabel: '搜索' }} />
+      <Tab.Screen name="search" component={Search} options={{
+        headerTitle: '搜索',
+        headerRight: SearchHeaderRight,
+        tabBarLabel: '搜索'
+      }} />
       <Tab.Screen name="tv" component={TvList} options={{ headerTitle: '电视直播', tabBarLabel: '电视直播' }} />
     </Tab.Navigator>
   )
 }
-
-const assets = {
-  video: require('./assets/video.png'),
-  video_active: require('./assets/video_active.png'),
-  tv: require('./assets/tv.png'),
-  tv_active: require('./assets/tv_active.png'),
-  search: require('./assets/search.png'),
-  search_active: require('./assets/search_active.png')
-} as Record<string, any>
 
 function Navigation() {
   const options = useStackOptions()
@@ -118,6 +158,7 @@ function Navigation() {
         <Stack.Screen name="home" component={TabView} options={{ headerShown: false }} />
         <Stack.Screen name="video_player" component={Video} />
         <Stack.Screen name="live_player" component={Tv} />
+        <Stack.Screen name="api_source" component={ApiSource} />
       </Stack.Navigator>
     </NavigationContainer>
   )

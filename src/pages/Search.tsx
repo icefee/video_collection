@@ -4,11 +4,10 @@ import { useNavigation } from '@react-navigation/native';
 import LoadingIndicator from '../components/LoadingIndicator';
 import { getSearchResult, getVideoDetail } from '../util/api';
 import { useTheme } from '../hook/theme';
+import { usePersistentStorage } from '../hook/storage';
 import { apiUrl, assetUrl } from '../config';
 
 function Search() {
-
-    const apiSource = useRef<ApiSource[]>()
 
     const [keyword, setKeyword] = useState('')
     const [videoList, setVideoList] = useState<SearchVideo[]>([])
@@ -17,6 +16,13 @@ function Search() {
 
     const { textColor, subTextColor, paperColor, borderColor, backdropColor } = useTheme()
     const navigation = useNavigation();
+    const [apiSource, setApiSource] = usePersistentStorage<{
+        data: ApiSource[],
+        update: number
+    }>('__api_source', {
+        data: [],
+        update: 0
+    })
 
     const inputFieldRef = useRef<TextInput | null>(null)
 
@@ -40,16 +46,22 @@ function Search() {
     }
 
     const getApiSource = async () => {
-        if (!apiSource.current) {
+        if (apiSource.data.length === 0) {
+            console.log('从网络加载')
             const apiSources = await fetchApiSource();
             if (apiSources) {
-                apiSource.current = apiSources
+                setApiSource({
+                    data: apiSources,
+                    update: +new Date
+                })
+                return apiSources;
             }
             else {
                 showToast('数据源获取失败')
             }
         }
-        return apiSource.current;
+        console.log('从缓存读取')
+        return apiSource.data;
     }
 
     const getSearch = async (s: string) => {
@@ -305,7 +317,7 @@ function Search() {
                             alignItems: 'center'
                         }}>
                             <Text style={{
-                                color: textColor
+                                color: '#fff'
                             }}>{name}</Text>
                             <RatingScore score={rating} />
                         </View>
