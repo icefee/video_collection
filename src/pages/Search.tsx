@@ -1,11 +1,13 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react';
-import { View, Image, TextInput, SectionList, Text, TouchableOpacity, Button, ToastAndroid, Dimensions, Linking } from 'react-native';
+import { View, Image, TextInput, SectionList, Text, TouchableOpacity, Button, Dimensions, Linking } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import LoadingIndicator from '../components/LoadingIndicator';
 import { getSearchResult, getVideoDetail } from '../util/api';
 import { useTheme } from '../hook/theme';
 import { usePersistentStorage } from '../hook/storage';
 import { apiUrl, assetUrl } from '../config';
+import { showToast } from '../util/toast';
+import ApiSource from './ApiSource';
 
 function Search() {
 
@@ -26,29 +28,9 @@ function Search() {
 
     const inputFieldRef = useRef<TextInput | null>(null)
 
-    const showToast = (msg: string) => ToastAndroid.showWithGravity(msg, ToastAndroid.SHORT, ToastAndroid.BOTTOM)
-
-    const fetchApiSource = async () => {
-        try {
-            const { code, data, msg } = await fetch(`${apiUrl}/api/video/source`).then<ApiJsonType<ApiSource[]>>(
-                response => response.json()
-            )
-            if (code === 0) {
-                return data;
-            }
-            else {
-                throw new Error(msg)
-            }
-        }
-        catch (err) {
-            return null;
-        }
-    }
-
     const getApiSource = async () => {
         if (apiSource.data.length === 0) {
-            console.log('从网络加载')
-            const apiSources = await fetchApiSource();
+            const apiSources = await ApiSource.fetchApiSource();
             if (apiSources) {
                 setApiSource({
                     data: apiSources,
@@ -60,7 +42,6 @@ function Search() {
                 showToast('数据源获取失败')
             }
         }
-        console.log('从缓存读取')
         return apiSource.data;
     }
 

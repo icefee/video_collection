@@ -5,8 +5,7 @@ import {
   View,
   Image,
   TouchableOpacity,
-  ImageSourcePropType,
-  Text
+  ImageSourcePropType
 } from 'react-native';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -19,6 +18,7 @@ import TvList from './pages/TvList';
 import Video from './pages/Video';
 import Tv from './pages/Tv';
 import Search from './pages/Search';
+import ApiSource from './pages/ApiSource';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -65,9 +65,7 @@ function useStackOptions() {
       color: textColor
     },
     statusBarColor,
-    statusBarTranslucent: true,
-    // headerShown: false
-    // headerBackImageSource: backImageAsset
+    statusBarTranslucent: true
   }
   return commonOptions;
 }
@@ -92,16 +90,6 @@ function SearchHeaderRight() {
         assets.api as ImageSourcePropType
       } />
     </TouchableOpacity>
-  )
-}
-
-function ApiSource() {
-  return (
-    <View style={{
-      height: '100%'
-    }}>
-      <Text>api source config</Text>
-    </View>
   )
 }
 
@@ -158,7 +146,9 @@ function Navigation() {
         <Stack.Screen name="home" component={TabView} options={{ headerShown: false }} />
         <Stack.Screen name="video_player" component={Video} />
         <Stack.Screen name="live_player" component={Tv} />
-        <Stack.Screen name="api_source" component={ApiSource} />
+        <Stack.Screen name="api_source" options={{
+          headerTitle: '数据源'
+        }} component={ApiSource} />
       </Stack.Navigator>
     </NavigationContainer>
   )
