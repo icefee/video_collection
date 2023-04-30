@@ -5,9 +5,10 @@ import LoadingIndicator from '../components/LoadingIndicator';
 import { getSearchResult, getVideoDetail } from '../util/api';
 import { useTheme } from '../hook/theme';
 import { usePersistentStorage } from '../hook/storage';
-import { apiUrl, assetUrl } from '../config';
+import { assetUrl } from '../config';
 import { showToast } from '../util/toast';
 import ApiSource from './ApiSource';
+import Base64 from 'react-native-base64';
 
 function Search() {
 
@@ -233,7 +234,7 @@ function Search() {
                                 <Poster
                                     width={120}
                                     height={180}
-                                    src={`${apiUrl}/api/video/${section.key}/${item.id}?type=poster`}
+                                    src={`${assetUrl}/api/video/${section.key}/${item.id}?type=poster`}
                                 />
                                 <View style={{
                                     width: Dimensions.get('window').width - 150
@@ -279,7 +280,7 @@ function Search() {
                                             onPress={
                                                 () => {
                                                     Linking.openURL(
-                                                        assetUrl + '/video?api=' + section.key + '&id=' + item.id
+                                                        assetUrl + '/video?clue=' + Base64.encode(`${section.key}|${item.id}`).replace(/\={2}$/, '')
                                                     )
                                                 }
                                             }
@@ -298,7 +299,7 @@ function Search() {
                             alignItems: 'center'
                         }}>
                             <Text style={{
-                                color: '#fff'
+                                color: textColor
                             }}>{name}</Text>
                             <RatingScore score={rating} />
                         </View>
