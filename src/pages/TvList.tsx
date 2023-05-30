@@ -6,8 +6,7 @@ import { assetUrl } from '../config';
 import LoadingIndicator from '../components/LoadingIndicator';
 
 async function getTVChannels() {
-    const url = assetUrl + '/iptv.json'
-    const data = await fetch(url).then<TVChannel[]>(
+    const data = await fetch(`${assetUrl}/api/tv`).then<TVChannel[]>(
         response => response.json()
     )
     return data;

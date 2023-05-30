@@ -8,7 +8,6 @@ import { usePersistentStorage } from '../hook/storage';
 import { assetUrl } from '../config';
 import { showToast } from '../util/toast';
 import ApiSource from './ApiSource';
-import Base64 from 'react-native-base64';
 
 function Search() {
 
@@ -280,7 +279,7 @@ function Search() {
                                             onPress={
                                                 () => {
                                                     Linking.openURL(
-                                                        assetUrl + '/video?clue=' + Base64.encode(`${section.key}|${item.id}`).replace(/\={2}$/, '')
+                                                        `${assetUrl}/video/${section.key}/${item.id}`
                                                     )
                                                 }
                                             }

@@ -12,8 +12,7 @@ const shields = [
 ];
 
 async function getVideos() {
-    const url = assetUrl + '/videos.json'
-    const { videos } = await fetch(url).then<{
+    const { videos } = await fetch(`${assetUrl}/api/video`).then<{
         videos: Section[];
     }>(
         response => response.json()
