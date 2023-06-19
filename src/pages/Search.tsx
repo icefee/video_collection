@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { View, Image, TextInput, SectionList, Text, TouchableOpacity, Button, Dimensions, Linking } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import Base64 from 'react-native-base64';
 import LoadingIndicator from '../components/LoadingIndicator';
 import { getSearchResult, getVideoDetail } from '../util/api';
 import { useTheme } from '../hook/theme';
@@ -108,6 +109,10 @@ function Search() {
         else {
             showToast('关键词不能为空')
         }
+    }
+
+    const getVideoClue = (key: string, id: string | number) => {
+        return Base64.encode(`${key}|${id}`).replace(/\={1,2}$/, '')
     }
 
     const withOverlay = (content: React.ReactNode) => {
@@ -233,7 +238,7 @@ function Search() {
                                 <Poster
                                     width={120}
                                     height={180}
-                                    src={`${assetUrl}/api/video/${section.key}/${item.id}?type=poster`}
+                                    src={`${assetUrl}/api/video/${getVideoClue(section.key, item.id)}?type=poster`}
                                 />
                                 <View style={{
                                     width: Dimensions.get('window').width - 150
@@ -279,7 +284,7 @@ function Search() {
                                             onPress={
                                                 () => {
                                                     Linking.openURL(
-                                                        `${assetUrl}/video/${section.key}/${item.id}`
+                                                        `${assetUrl}/video/play/${getVideoClue(section.key, item.id)}?type=poster`
                                                     )
                                                 }
                                             }
@@ -368,6 +373,9 @@ function Poster({ src, width, height }: PosterProps) {
 
     useEffect(() => {
         setPending(true)
+        return () => {
+            setError(false)
+        }
     }, [src])
 
     return (

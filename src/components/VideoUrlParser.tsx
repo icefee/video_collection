@@ -20,13 +20,7 @@ async function parseVideoUrl(url: string) {
             if (parsedUrl.startsWith('http')) {
                 return parsedUrl;
             }
-            const uri = new URL(url);
-            if (parsedUrl.startsWith('/')) {
-                return uri.origin + parsedUrl;
-            }
-            const paths = uri.pathname.split('/');
-            paths.pop();
-            return uri.origin + paths.join('/') + '/' + parsedUrl;
+            return new URL(parsedUrl, url).href;
         }
         else {
             throw new Error('😥 not matched.')
