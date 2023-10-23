@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { ScrollView, Pressable, View, Text, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../hook/theme';
-import { tvApiUrl } from '../config';
+import { assetUrl } from '../config';
 import LoadingIndicator from '../components/LoadingIndicator';
 
 async function getTVChannels() {
-    const data = await fetch(`${tvApiUrl}/api/tv`).then<TVChannel[]>(
+    const data = await fetch(`${assetUrl}/api/tv`).then<TVChannel[]>(
         response => response.json()
     )
     return data;
