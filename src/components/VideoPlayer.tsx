@@ -16,6 +16,7 @@ function timeFormatter(sf: number): string {
 }
 
 interface VideoPlayerProps {
+    title?: string;
     url: string;
     live?: boolean;
     width: number;
@@ -25,7 +26,7 @@ interface VideoPlayerProps {
     onEnd?: () => void;
 }
 
-function VideoPlayer({ url, live = false, width, height, fullscreen, onRequestFullscreen, onEnd }: VideoPlayerProps) {
+function VideoPlayer({ title, url, live = false, width, height, fullscreen, onRequestFullscreen, onEnd }: VideoPlayerProps) {
 
     const playerRef = useRef<PlayerRef>()
     const timeoutRef = useRef<number>();
@@ -139,7 +140,10 @@ function VideoPlayer({ url, live = false, width, height, fullscreen, onRequestFu
                 }
             }>
                 <Video
-                    source={{ uri: url }}
+                    source={live ? {
+                        uri: url,
+                        type: 'm3u8'
+                    } : { uri: url }}
                     paused={paused}
                     minLoadRetryCount={20}
                     resizeMode="contain"

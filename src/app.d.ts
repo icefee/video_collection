@@ -21,6 +21,11 @@ declare module 'react-native-video' {
     const _default: ClassicComponentClass<{
         source: {
             uri: string;
+            type?: 'mpd' | 'm3u8' | 'ism';
+            title?: string;
+            subtitle?: string;
+            description?: string;
+            customImageUri?: string;
         };
         controls?: boolean;
         paused?: boolean;

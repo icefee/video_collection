@@ -6,7 +6,7 @@ import { assetUrl } from '../config';
 import LoadingIndicator from '../components/LoadingIndicator';
 
 async function getTVChannels() {
-    const data = await fetch(`${assetUrl}/api/video/tv`).then<TVChannel[]>(
+    const data = await fetch(`${assetUrl}/api/video/tv?inherit=1`).then<TVChannel[]>(
         response => response.json()
     )
     return data;
@@ -21,10 +21,12 @@ function TVChannel({ data }: TVChannelProps) {
     const { textColor, backgroundColor, paperColor, borderColor } = useTheme();
 
     return (
-        <ScrollView contentInsetAdjustmentBehavior="automatic">
-            <View style={{
-                padding: 5,
+        <ScrollView
+            style={{
                 backgroundColor
+            }} contentInsetAdjustmentBehavior="automatic">
+            <View style={{
+                padding: 5
             }}>
                 <View style={{
                     backgroundColor: paperColor,
@@ -50,11 +52,14 @@ function TVChannel({ data }: TVChannelProps) {
                                             <Text style={{ fontWeight: 'bold', fontSize: 16, color: textColor }}>{channel.title}</Text>
                                         </View>
                                         <View>
-                                            <Image style={{
-                                                resizeMode: 'center',
-                                                width: 24,
-                                                height: 24
-                                            }} source={require('../assets/arrow-right.png')} />
+                                            <Image
+                                                style={{
+                                                    resizeMode: 'center',
+                                                    width: 24,
+                                                    height: 24
+                                                }}
+                                                source={require('../assets/arrow-right.png')}
+                                            />
                                         </View>
                                     </View>
                                 </Pressable>

@@ -7,6 +7,7 @@ import { getSearchResult, getVideoDetail } from '../util/api';
 import { useTheme } from '../hook/theme';
 import { usePersistentStorage } from '../hook/storage';
 import { assetUrl } from '../config';
+import { Clue } from '../util/clue';
 import { showToast } from '../util/toast';
 import ApiSource from './ApiSource';
 
@@ -17,7 +18,7 @@ function Search() {
     const [loading, setLoading] = useState(false)
     const [searchComplate, setSearchComplate] = useState(false)
 
-    const { textColor, subTextColor, paperColor, borderColor, backdropColor } = useTheme()
+    const { textColor, backgroundColor, subTextColor, paperColor, borderColor, backdropColor } = useTheme()
     const navigation = useNavigation();
     const [apiSource, setApiSource] = usePersistentStorage<{
         data: ApiSource[],
@@ -111,10 +112,6 @@ function Search() {
         }
     }
 
-    const getVideoClue = (key: string, id: string | number) => {
-        return Base64.encode(`${key}|${id}`).replace(/\={1,2}$/, '')
-    }
-
     const withOverlay = (content: React.ReactNode) => {
         return (
             <View style={{
@@ -140,7 +137,8 @@ function Search() {
 
     return (
         <View style={{
-            height: '100%'
+            height: '100%',
+            backgroundColor
         }}>
             <View style={{
                 position: 'absolute',
@@ -151,10 +149,11 @@ function Search() {
                 zIndex: 20,
                 borderColor,
                 borderTopWidth: 1,
-                backgroundColor: paperColor
+                backgroundColor
             }}>
                 <View style={{
                     position: 'relative',
+                    backgroundColor: paperColor,
                     flexDirection: 'row',
                     alignItems: 'center',
                     borderWidth: 1,
@@ -214,10 +213,12 @@ function Search() {
             <View style={{
                 position: 'relative',
                 paddingTop: 50,
+                paddingHorizontal: 8,
                 flexGrow: 1
             }}>
                 <SectionList
                     sections={videoList}
+                    stickySectionHeadersEnabled
                     keyExtractor={(item, index) => `${index}-${item.id}`}
                     renderItem={({ item, section }) => (
                         <TouchableOpacity style={{
@@ -230,7 +231,6 @@ function Search() {
                         }>
                             <View style={{
                                 backgroundColor: paperColor,
-                                padding: 10,
                                 borderRadius: 6,
                                 flexDirection: 'row',
                                 justifyContent: 'space-between'
@@ -238,10 +238,11 @@ function Search() {
                                 <Poster
                                     width={120}
                                     height={180}
-                                    src={`${assetUrl}/api/video/${getVideoClue(section.key, item.id)}?type=poster`}
+                                    src={`${assetUrl}/api/video/poster/${Clue.create(section.key, item.id)}`}
                                 />
                                 <View style={{
-                                    width: Dimensions.get('window').width - 150
+                                    width: Dimensions.get('window').width - 104,
+                                    padding: 8
                                 }}>
                                     <View style={{
                                         flexBasis: '100%'
@@ -284,7 +285,7 @@ function Search() {
                                             onPress={
                                                 () => {
                                                     Linking.openURL(
-                                                        `${assetUrl}/video/play/${getVideoClue(section.key, item.id)}?type=poster`
+                                                        `${assetUrl}/video/play/${Clue.create(section.key, item.id)}`
                                                     )
                                                 }
                                             }
@@ -296,11 +297,12 @@ function Search() {
                     )}
                     renderSectionHeader={({ section: { name, rating } }) => (
                         <View style={{
-                            paddingHorizontal: 8,
-                            paddingTop: 24,
+                            padding: 12,
+                            backgroundColor: paperColor,
                             flexDirection: 'row',
                             justifyContent: 'space-between',
-                            alignItems: 'center'
+                            alignItems: 'center',
+                            elevation: 2
                         }}>
                             <Text style={{
                                 color: textColor
@@ -330,7 +332,7 @@ interface PosterProps {
 
 function Poster({ src, width, height }: PosterProps) {
 
-    const { backgroundColor, backdropColor } = useTheme()
+    const { paperColor, backdropColor } = useTheme()
     const [pending, setPending] = useState(false)
     const [error, setError] = useState(false)
 
@@ -383,7 +385,7 @@ function Poster({ src, width, height }: PosterProps) {
             position: 'relative',
             width,
             height,
-            backgroundColor
+            backgroundColor: paperColor
         }}>
             <Image
                 style={{

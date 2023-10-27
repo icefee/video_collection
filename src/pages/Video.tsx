@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, ScrollView, TouchableHighlight, Text, BackHandler, type StyleProp, type ViewStyle } from 'react-native';
+import { View, ScrollView, Text, BackHandler } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import VideoPlayer from '../components/VideoPlayer';
 import { useTheme } from '../hook/theme';
 import Orientation from 'react-native-orientation';
 import { useWindowSize } from '../hook/screen';
-import LinearGradientView from '../components/LinearGradientView';
+import EpisodeSelection from '../components/EpisodeSelection';
 import VideoUrlParser from '../components/VideoUrlParser';
 
 export const getM3u8Uri: (url_template: string, m3u8: M3u8Video) => string = (url_template, m3u8) => {
@@ -199,47 +199,6 @@ function Video() {
                             )
                         }
                     </View>
-                )
-            }
-        </View>
-    )
-}
-
-function EpisodeSelection({ active, children, onPress }: { active: boolean, children: React.ReactNode, onPress: () => void }) {
-
-    const { textColor, isDark } = useTheme()
-
-    const viewStyle: StyleProp<ViewStyle> = {
-        borderWidth: 1,
-        height: 40,
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderColor: textColor,
-        backgroundColor: active ? 'purple' : 'transparent'
-    }
-
-    const textStyle = {
-        color: (active || isDark) ? '#fff' : textColor
-    }
-
-    const text = (
-        <Text style={textStyle}>{children}</Text>
-    )
-
-    return (
-        <View style={{
-            width: '20%',
-            padding: 5
-        }}>
-            {
-                active ? (
-                    <LinearGradientView style={viewStyle}>
-                        {text}
-                    </LinearGradientView>
-                ) : (
-                    <TouchableHighlight underlayColor="transparent" style={viewStyle} onPress={onPress}>
-                        {text}
-                    </TouchableHighlight>
                 )
             }
         </View>

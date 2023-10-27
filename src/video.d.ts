@@ -19,10 +19,16 @@ declare interface Film {
 
 declare type Video = Episode | Film
 
+interface TvSource {
+    url: string;
+    cors?: boolean;
+    parse?: boolean;
+}
+
 declare interface TVChannel {
     id: number;
     title: string;
-    url: string;
+    source: TvSource | TvSource[];
 }
 
 declare interface SearchVideo {
